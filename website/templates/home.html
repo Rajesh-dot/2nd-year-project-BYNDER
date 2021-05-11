@@ -18,13 +18,5 @@
     </li>
     {% endfor %}
 </ul>
-{% if user.user_type=='P' %}
-<form method="POST">
-    <textarea name="note" id="note" class="form-control"></textarea>
-    <br/>
-    <div align="center">
-        <button type="submit" class="btn btn-primary">Add Notice</button>
-    </div>
-</form>
 {% endif %}
 {% endblock %}

@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .models import User, Student
+from .models import User, Student, Teacher
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_required, login_user, logout_user, current_user
@@ -54,12 +54,10 @@ def sign_up():
             flash("Passwords don't match.", category='error')
         elif len(password1) < 7:
             flash("Password must be greater than 6 charecters.", category='error')
-        elif user_type.lower() != 's' and user_type.lower() != 'p':
-            flash("Invalid user type")
         else:
             if user_type.lower() == 's':
                 new_user = User(email=email, first_name=firstName, password=generate_password_hash(
-                    password1, method='sha256'))
+                    password1, method='sha256'), user_type=user_type)
                 db.session.add(new_user)
                 db.session.commit()
                 login_user(new_user, remember=True)
@@ -69,10 +67,13 @@ def sign_up():
             else:
                 # add user to data base
                 new_user = User(email=email, first_name=firstName, password=generate_password_hash(
-                    password1, method='sha256'))
+                    password1, method='sha256'), user_type=user_type)
                 db.session.add(new_user)
                 db.session.commit()
                 login_user(new_user, remember=True)
+                teacher = Teacher(user_id=current_user.id)
+                db.session.add(teacher)
+                db.session.commit()
                 flash("Account Created!", category='success')
                 return redirect(url_for('views.add_teaching'))
 

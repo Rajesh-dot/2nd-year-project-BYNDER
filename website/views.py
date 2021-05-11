@@ -13,8 +13,7 @@ def require_role(role):
     def decorator(func):
         @wraps(func)
         def wrapped_function(*args, **kwargs):
-            print(current_user.has_role(role))
-            if not current_user.has_role(role):
+            if not current_user.user_type == role:
                 return redirect("/profile")
             else:
                 return func(*args, **kwargs)
@@ -39,7 +38,10 @@ def home():
                 db.session.add(new_note)
                 db.session.commit()
             flash('Note added!', category='success')
-    return render_template("home.html", user=current_user)
+    if current_user.user_type.lower()=='s':
+        return render_template("home.html", user=current_user)
+    elif current_user.user_type.lower()=='p':
+        return render_template("teacher_home.html", user=current_user)
 
 
 @views.route('/student_info', methods=['GET', 'POST'])
@@ -53,22 +55,6 @@ def student_info():
         regno = request.form.get('regno')
         if len(regno) < 10 or len(regno) > 10:
             flash("Invalid Register Number", category="error")
-        elif branch.lower() not in ['cse', 'mech', 'it', 'civil', 'eee', 'ece']:
-            flash('Incorrect Branch Data', category='error')
-        elif len(sem) <= 0:
-            flash('Enter value in semester', category="error")
-        elif not sem.isdigit():
-            flash('Invalid Semester', category="error")
-        elif int(sem) > 8 or int(sem) < 1:
-            flash('Invalid Semester', category="error")
-        elif len(year) <= 0:
-            flash('Enter value in year', category="error")
-        elif not year.isdigit():
-            flash('Invalid Year', category="error")
-        elif int(year) > 4 or int(year) < 1:
-            flash('Invalid Year', category="error")
-        elif len(section) <= 0:
-            flash('Invalid Section', category="error")
         else:
             student = Student(regno=regno, branch=branch, year=year,
                               section=section, semester=sem, user_id=current_user.id)
@@ -85,6 +71,14 @@ def user():
     return render_template('user_base.html', user=current_user)
 
 
+@views.route('/addpost', methods=['GET', 'POST'])
+@login_required
+def addpost():
+    if current_user.user_type.lower()=='s':
+        return redirect("/")
+    return render_template("addnotice.html",user=current_user)
+
+
 @views.route('/add_teaching', methods=['GET', 'POST'])
 @login_required
 def add_teaching():
@@ -95,22 +89,12 @@ def add_teaching():
         subject = request.form.get('subject')
         if len(subject) <= 0:
             flash("Please Enter the subject", category="error")
-        elif branch.lower() not in ['cse', 'mech', 'it', 'civil', 'eee', 'ece']:
-            flash('Incorrect Branch Data', category='error')
-        elif len(year) <= 0:
-            flash('Enter value in year', category="error")
-        elif not year.isdigit():
-            flash('Invalid Year', category="error")
-        elif int(year) > 4 or int(year) < 1:
-            flash('Invalid Year', category="error")
-        elif len(section) <= 0:
-            flash('Invalid Section', category="error")
         else:
-            teacher = current_user.teacher
-            print(teacher)
-            # teaching = Teaching(subject=subject, branch=branch, year=year,section = section, teacher_id = current_user.teacher.id)
-            # db.session.add(teaching)
-            # db.session.commit()
+            teacher = current_user.teacher[0]
+            teaching = Teaching(subject=subject, branch=branch, year=year,
+                                section=section, teacher_id=teacher.id)
+            db.session.add(teaching)
+            db.session.commit()
             flash('Information added sucessfully', category="success")
     return render_template('extra_info_teacher.html', user=current_user)
 
@@ -125,3 +109,12 @@ def delete_note():
             db.session.delete(note)
             db.session.commit()
     return jsonify({})
+
+
+@views.route('/test',methods=['GET','POST'])
+def test():
+    if request.method=='POST':
+        year = request.form.get("year")
+        print(year)
+        print(type(year))
+    return render_template('test.html',user=current_user)

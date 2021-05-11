@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Testing{% endblock %}
+{% block content %}
+<form method="POST">
+    <h2 align="center">Testing</h2>
+    <div class="form-group">
+        <label for="year">Year</label>
+        <select class="form-control" name="year" id="year">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+    </div>
+    </br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
