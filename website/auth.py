@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for
-from .models import User
+from .models import User, Student
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
 from flask_login import login_required, login_user, logout_user, current_user
@@ -54,14 +54,26 @@ def sign_up():
             flash("Passwords don't match.", category='error')
         elif len(password1) < 7:
             flash("Password must be greater than 6 charecters.", category='error')
+        elif user_type.lower() != 's' and user_type.lower() != 'p':
+            flash("Invalid user type")
         else:
-            # add user to data base
-            new_user = User(email=email, first_name=firstName, password=generate_password_hash(
-                password1, method='sha256'), user_type=user_type)
-            db.session.add(new_user)
-            db.session.commit()
-            login_user(new_user, remember=True)
-            flash("Account Created!", category='success')
-            return redirect(url_for('views.home'))
+            if user_type.lower() == 's':
+                new_user = User(email=email, first_name=firstName, password=generate_password_hash(
+                    password1, method='sha256'))
+                db.session.add(new_user)
+                db.session.commit()
+                login_user(new_user, remember=True)
+                flash("Account Created!", category='success')
+                flash("Please fill the remaining details!", category='success')
+                return redirect(url_for('views.student_info'))
+            else:
+                # add user to data base
+                new_user = User(email=email, first_name=firstName, password=generate_password_hash(
+                    password1, method='sha256'))
+                db.session.add(new_user)
+                db.session.commit()
+                login_user(new_user, remember=True)
+                flash("Account Created!", category='success')
+                return redirect(url_for('views.add_teaching'))
 
     return render_template("sign_up.html", user=current_user)

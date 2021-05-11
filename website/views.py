@@ -1,14 +1,30 @@
-from flask import Blueprint, render_template, request, flash, jsonify
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
-from .models import Note, User
+from .models import Note, User, Student, Teaching, Teacher
 from . import db
+from functools import wraps
 import json
 
 views = Blueprint('views', __name__)
 
 
+def require_role(role):
+    """make sure user has this role"""
+    def decorator(func):
+        @wraps(func)
+        def wrapped_function(*args, **kwargs):
+            print(current_user.has_role(role))
+            if not current_user.has_role(role):
+                return redirect("/profile")
+            else:
+                return func(*args, **kwargs)
+        return wrapped_function
+    return decorator
+
+
 @views.route('/', methods=['GET', 'POST'])
 @login_required
+# @require_role(role="Teacher")
 def home():
     if request.method == 'POST':
         note = request.form.get('note')
@@ -26,13 +42,80 @@ def home():
     return render_template("home.html", user=current_user)
 
 
+@views.route('/student_info', methods=['GET', 'POST'])
+@login_required
+def student_info():
+    if request.method == 'POST':
+        branch = request.form.get('branch')
+        sem = request.form.get('sem')
+        year = request.form.get('year')
+        section = request.form.get('section')
+        regno = request.form.get('regno')
+        if len(regno) < 10 or len(regno) > 10:
+            flash("Invalid Register Number", category="error")
+        elif branch.lower() not in ['cse', 'mech', 'it', 'civil', 'eee', 'ece']:
+            flash('Incorrect Branch Data', category='error')
+        elif len(sem) <= 0:
+            flash('Enter value in semester', category="error")
+        elif not sem.isdigit():
+            flash('Invalid Semester', category="error")
+        elif int(sem) > 8 or int(sem) < 1:
+            flash('Invalid Semester', category="error")
+        elif len(year) <= 0:
+            flash('Enter value in year', category="error")
+        elif not year.isdigit():
+            flash('Invalid Year', category="error")
+        elif int(year) > 4 or int(year) < 1:
+            flash('Invalid Year', category="error")
+        elif len(section) <= 0:
+            flash('Invalid Section', category="error")
+        else:
+            student = Student(regno=regno, branch=branch, year=year,
+                              section=section, semester=sem, user_id=current_user.id)
+            db.session.add(student)
+            db.session.commit()
+            flash('Information updated sucessfully', category="success")
+            return redirect(url_for('views.home'))
+    return render_template('extra_info.html', user=current_user)
+
+
 @views.route('/profile')
 @login_required
 def user():
     return render_template('user_base.html', user=current_user)
 
 
-@views.route('/delete-note', methods=['POST'])
+@views.route('/add_teaching', methods=['GET', 'POST'])
+@login_required
+def add_teaching():
+    if request.method == 'POST':
+        branch = request.form.get('branch')
+        year = request.form.get('year')
+        section = request.form.get('section')
+        subject = request.form.get('subject')
+        if len(subject) <= 0:
+            flash("Please Enter the subject", category="error")
+        elif branch.lower() not in ['cse', 'mech', 'it', 'civil', 'eee', 'ece']:
+            flash('Incorrect Branch Data', category='error')
+        elif len(year) <= 0:
+            flash('Enter value in year', category="error")
+        elif not year.isdigit():
+            flash('Invalid Year', category="error")
+        elif int(year) > 4 or int(year) < 1:
+            flash('Invalid Year', category="error")
+        elif len(section) <= 0:
+            flash('Invalid Section', category="error")
+        else:
+            teacher = current_user.teacher
+            print(teacher)
+            # teaching = Teaching(subject=subject, branch=branch, year=year,section = section, teacher_id = current_user.teacher.id)
+            # db.session.add(teaching)
+            # db.session.commit()
+            flash('Information added sucessfully', category="success")
+    return render_template('extra_info_teacher.html', user=current_user)
+
+
+@ views.route('/delete-note', methods=['POST'])
 def delete_note():
     note = json.loads(request.data)
     noteId = note['noteId']

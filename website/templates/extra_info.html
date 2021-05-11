@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block content %}
+<form method="POST">
+    <h2 align="center">Sign Up</h2>
+    <div class="form-group">
+        <label for="regno">Regno</label>
+        <input type="text" class="form-control" id="regno" name="regno" placeholder="Enter Register Number"/>
+    </div>
+    <div class="form-group">
+        <label for="branch">Branch</label>
+        <input type="text" class="form-control" id="branch" name="branch" placeholder="Enter Branch"/>
+    </div>
+    <div class="form-group">
+        <label for="section">Section</label>
+        <input type="text" class="form-control" id="section" name="section" placeholder="Enter Section"/>
+    </div>
+    <div class="form-group">
+        <label for="year">Year</label>
+        <input type="text" class="form-control" id="year" name="year" placeholder="Enter Year of Studying"/>
+    </div>
+    <div class="form-group">
+        <label for="sem">Semester</label>
+        <input type="text" class="form-control" id="sem" name="sem" placeholder="Which Semester"/>
+    </div>
+    </br>
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
