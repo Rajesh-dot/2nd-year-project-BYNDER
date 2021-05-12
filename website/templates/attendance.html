@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1 align="center">Attendance</h1>
+{% for student in students_list %}
+    <div class="form-check">
+        <label for="present_status">{{ student.regno }}</label>
+        <input type="checkbox" name="present_status" id="present status" value="Present">
+    </div>
+{% endfor %}
+{% endblock %}

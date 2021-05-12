@@ -75,6 +75,6 @@ def sign_up():
                 db.session.add(teacher)
                 db.session.commit()
                 flash("Account Created!", category='success')
-                return redirect(url_for('views.add_teaching'))
+                return redirect(url_for('views.add_course'))
 
     return render_template("sign_up.html", user=current_user)

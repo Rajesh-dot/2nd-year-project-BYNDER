@@ -8,8 +8,13 @@ class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     data = db.Column(db.String(10000))
     date = db.Column(db.DateTime(timezone=True), default=func.now())
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_ids = db.relationship("Array_ids")
     #user_name = db.Column(db.String(150), db.ForeignKey('user.first_name'))
+
+class Array_ids(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    note_id = db.Column(db.Integer, db.ForeignKey('note.id'))
 
 
 class User(db.Model, UserMixin):
@@ -18,7 +23,6 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
     user_type = db.Column(db.String(1))
-    notes = db.relationship('Note')
     student = db.relationship('Student')
     teacher = db.relationship('Teacher')
 
@@ -31,21 +35,34 @@ class Student(db.Model):
     year = db.Column(db.Integer)
     semester = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    courses = db.relationship('Course')
+    attendance = db.relationship('Attendance')
+
 
 
 class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    teachings = db.relationship('Teaching')
+    courses = db.relationship('Course')
 
 
-class Teaching(db.Model):
+class Course(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     branch = db.Column(db.String(20))
     section = db.Column(db.String(1))
     year = db.Column(db.Integer)
     subject = db.Column(db.String(50))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    attendance = db.relationship('Attendance')
+
+
+class Attendance(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    present_status = db.Column(db.Boolean)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
 
 
 '''

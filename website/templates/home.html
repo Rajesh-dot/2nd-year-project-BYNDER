@@ -3,7 +3,8 @@
 {% block content %}
 <h1 align="center">Notices</h1>
 <ul class="list-group list-group-flush" id="notes">
-    {% for note in user.notes %}
+    {% for note in notes %}
+    <h1>{{ note.id }}</h1>>
     <li class="list-group-item">
         <article class="media content-section">
             <div class="media-body">
@@ -11,12 +12,11 @@
                 <a class="mr-2" href="#">VVIT</a>
                 <small class="text-muted">{{ note.date }}</small>
             </div>
-            <h2><a class="article-title" href="#">{{ note.user_id }}</a></h2>
+            <h2><a class="article-title" href="#">{{ user.id }}</a></h2>
             <p class="article-content">{{ note.data }}</p>
             </div>
         </article>
     </li>
     {% endfor %}
 </ul>
-{% endif %}
 {% endblock %}

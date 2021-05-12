@@ -10,7 +10,7 @@
 {% endfor %}
 {% for t in user.teacher %}
     <h2>Class:</h2>
-    {% for teach in t.teachings %}
+    {% for teach in t.courses %}
         <h2>{{ teach.subject }}</h2>
         <h2>{{ teach.year }}</h2>
         <h2>{{ teach.branch }}</h2>
