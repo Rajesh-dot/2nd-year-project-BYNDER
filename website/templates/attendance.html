@@ -2,10 +2,50 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 <h1 align="center">Attendance</h1>
-{% for student in students_list %}
-    <div class="form-check">
-        <label for="present_status">{{ student.regno }}</label>
-        <input type="checkbox" name="present_status" id="present status" value="Present">
+<div class="container">
+  <div class="card card-plain">
+    <div class="card-body">
+      <h3 class="card-title">{{ course_name }}</h3>
+      <br />
+      <div class="table-responsive">
+        <form method="POST">
+          <h3 class="card-title">Lecture Date</h3>
+          <input type="date" class="form-control" placeholder="Date..." name="date" value={{date}} id="date" required>
+          <table class="table table-shopping table-striped">
+          <thead>
+            <tr>
+              <th class="text-center">Roll Number</th>
+              <th class="text-center">Name</th>
+              <th class="text-center">Mark Attendance</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for student in students_list %}
+              <tr>
+                <td class="td-number text-center">
+                  {{ student.regno }}
+                </td>
+                <td class="td-number text-center">
+                  {{ student_names[student.id] }}
+                </td>
+                <td class="td-number text-center">
+                  <div class="form-check disabled">
+                    <label class="form-check-label">
+                    <input value="true" class="form-check-input" type="checkbox" name={{ student.id }}>
+                      <span class="form-check-sign">
+                        <span class="check"></span>
+                      </span>
+                    </label>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          </table>
+          <button type="submit" class="btn btn-success btn-raised btn-lg">Post Attendance</button>
+        </form>  
+      </div>
     </div>
-{% endfor %}
+  </div>
+</div>
 {% endblock %}

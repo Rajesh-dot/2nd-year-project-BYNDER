@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1 align="center">Progress</h1>
+<h2 >{{ user.first_name }}</h2>
+</br>
+{% for course_name in attendance_percentages %}
+    <h4>{{course_name}}, {{attendance_percentages[course_name]}}%</h4>
+    <div class="progress">
+        <div class="progress-bar" role="progressbar" style="width: {{attendance_percentages[course_name]}}%" aria-valuenow="{{attendance_percentages[course_name]}}" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+</br>
+{% endfor %}
+{% endblock %}

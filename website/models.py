@@ -9,6 +9,7 @@ class Note(db.Model):
     data = db.Column(db.String(10000))
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     user_ids = db.relationship("Array_ids")
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     #user_name = db.Column(db.String(150), db.ForeignKey('user.first_name'))
 
 class Array_ids(db.Model):
@@ -23,6 +24,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
     user_type = db.Column(db.String(1))
+    notes = db.relationship('Note')
     student = db.relationship('Student')
     teacher = db.relationship('Teacher')
 
@@ -35,7 +37,6 @@ class Student(db.Model):
     year = db.Column(db.Integer)
     semester = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    courses = db.relationship('Course')
     attendance = db.relationship('Attendance')
 
 
@@ -53,9 +54,13 @@ class Course(db.Model):
     year = db.Column(db.Integer)
     subject = db.Column(db.String(50))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
-    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+    student_ids = db.relationship('Student_ids')
     attendance = db.relationship('Attendance')
 
+class Student_ids(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    student_id = db.Column(db.Integer)
 
 class Attendance(db.Model):
     id = db.Column(db.Integer,primary_key=True)

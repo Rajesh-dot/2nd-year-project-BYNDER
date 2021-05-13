@@ -15,7 +15,7 @@
             href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
             crossorigin="anonymous"
         />
-        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">
+        <!--<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">-->
         <title>{% block title %}Home{% endblock %}</title>
     </head>
     <body>
@@ -81,14 +81,7 @@
             crossorigin="anonymous"
         ></script>
         <script>
-            function deleteNote(noteId) {
-                fetch("/delete-note", {
-                method: "POST",
-                body: JSON.stringify({ noteId: noteId }),
-                }).then((_res) => {
-                window.location.href = "/";
-                });
-            }
+            src = "http://localhost:5000/static/index.js"
         </script>
     </body>
 </html>

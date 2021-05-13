@@ -5,7 +5,7 @@
 <h2 >{{ user.first_name }}</h2>
 {% set stu = user.student[0] %}
 <h2>Course:</h2>
-{% for teach in stu.courses %}
+{% for teach in courses_list %}
     <h2>{{ teach.subject }}</h2>
     <h2>{{ teach.year }}</h2>
     <h2>{{ teach.branch }}</h2>

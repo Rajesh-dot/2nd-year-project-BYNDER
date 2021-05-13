@@ -1,9 +1,10 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
-from .models import Note, User, Student, Course, Teacher
+from .models import Note, User, Student, Course, Teacher, Student_ids, Attendance, Array_ids
 from . import db
 from functools import wraps
 import json
+from datetime import date
 
 views = Blueprint('views', __name__)
 
@@ -26,28 +27,16 @@ def require_role(role):
 @login_required
 # @require_role(role="Teacher")
 def home():
-    if request.method == 'POST':
-        note = request.form.get('note')
-
-        if len(note) < 1:
-            flash("Note is too short!", category="error")
-        else:
-            # print(current_user.id)
-            rows = db.session.query(User).count()
-            for i in range(rows+1):
-                new_note = Note(data=note, user_id=i)
-                db.session.add(new_note)
-                db.session.commit()
-            flash('Note added!', category='success')
-
     rows = db.session.query(Note).count()
     notes = []
     for i in range(1,rows+1):
         temp_note = Note.query.get(i)
         user_ids = temp_note.user_ids
         for j in user_ids:
-            if j==current_user.id:
+            if current_user.id==j.user_id:
                 notes.append(temp_note)
+        if temp_note.user_id==current_user.id:
+            notes.append(temp_note)
 
     if current_user.user_type.lower()=='s':
         return render_template("home.html", user=current_user,notes=notes)
@@ -89,16 +78,56 @@ def profile():
 def addpost():
     if request.method == 'POST':
         note = request.form.get('note')
+        sections = {'a':False,'b':False,'c':False,'d':False}
+        branchs = {'cse':False,'it':False,'mech':False,'ece':False,'eee':False,'civil':False}
+        years = {'1':False,'2':False,'3':False,'4':False}
+
+        c=0
+        for section in sections:
+            temp = request.form.get(section)
+            if temp!=None:
+                sections[section] = True
+                c+=1
+        if c==0:
+            flash("Please select atleast one section","error")
+
+        c=0
+        for year in years:
+            temp = request.form.get(year)
+            if temp!=None:
+                years[year] = True
+                c+=1
+        if c==0:
+            flash("Please select atleast one year","error")
+
+        c=0
+        for branch in branchs:
+            temp = request.form.get(branch)
+            if temp!=None:
+                branchs[branch] = True
+                c+=1
+        if c==0:
+            flash("please select atleast one branch","error")
 
         if len(note) < 1:
             flash("Note is too short!", category="error")
         else:
             # print(current_user.id)
+            notice = Note(data=note,user_id=current_user.id)
+            db.session.add(notice)
+            db.session.commit()
             rows = db.session.query(User).count()
             for i in range(rows+1):
-                new_note = Note(data=note, user_id=i)
-                db.session.add(new_note)
-                db.session.commit()
+                user = User.query.get(i)
+                if user!=None:
+                    student = user.student
+                    if len(student)!=0:
+                        student = student[0]
+                        if sections[student.section] and branchs[student.branch] and years[str(student.year)]:
+                            array_ids = Array_ids(note_id=notice.id,user_id=user.id)
+                            db.session.add(array_ids)
+                            db.session.commit()
+
             flash('Note added!', category='success')
     return render_template("addnotice.html",user=current_user)
 
@@ -116,13 +145,16 @@ def add_course():
             flash("Please Enter the subject", category="error")
         else:
             teacher = current_user.teacher[0]
+            course = Course(subject=subject, branch=branch, year=year,section=section, teacher_id=teacher.id)
+            db.session.add(course)
+            db.session.commit()
             rows = db.session.query(Student).count()
             for i in range(1,rows+1):
                 student = Student.query.get(i)
                 if student!=None:
                     if student.branch==branch and student.section==section and student.year==year:
-                        course = Course(subject=subject, branch=branch, year=year,section=section, teacher_id=teacher.id,student_id=student.id)
-                        db.session.add(course)
+                        student_ids = Student_ids(course_id=course.id,student_id=student.id)
+                        db.session.add(student_ids)
                         db.session.commit()
             flash('Information added sucessfully', category="success")
     print(db.session.query(Course).count())
@@ -133,7 +165,17 @@ def add_course():
 @login_required
 @require_role('s')
 def courses():
-    return render_template("courses.html",user=current_user,Teacher=Teacher,User=User)
+    student = current_user.student[0]
+    rows = db.session.query(Course).count()
+    courses_list = []
+    for i in range(1,rows+1):
+        course = Course.query.get(i)
+        if course!=None:
+            student_ids = course.student_ids
+            for j in student_ids:
+                if j.student_id==student.id:
+                    courses_list.append(course)
+    return render_template("courses.html",user=current_user,Teacher=Teacher,User=User,courses_list=courses_list)
 
 
 
@@ -151,10 +193,11 @@ def classes():
 
 
 
-@views.route('/<course>')
+@views.route('/<course>',methods = ['GET','POST'])
 @login_required
 @require_role('p')
 def subject(course):
+    course_name = course
     flag = True
     try:
         values = ['','','','']
@@ -185,23 +228,69 @@ def subject(course):
     flag = True
     for course in teacher.courses:
         if course.subject==values[0] and course.year==int(values[1]) and course.branch==values[2].lower() and course.section==values[3].lower():
+            temp_course = course
             flag = False
     if flag:
         return redirect("/")
-    
+
     students_list = []
-    rows = db.session.query(Student).count()
+    student_names = {}
+    rows = db.session.query(User).count()
     for i in range(1,rows+1):
-        student = Student.query.get(i)
-        if student!=None:
-            if student.branch==branch and student.section==section and student.year==year:
-                students_list.append(student)
+        user = User.query.get(i)
+        if user!=None:
+            student = user.student
+            if len(student)!=0:
+                student = student[0]
+                student_names[student.id] = user.first_name
+                if student.branch==branch and student.section==section and student.year==year:
+                    students_list.append(student)
     print(students_list)
+    if request.method=='POST':
+        #date = request.form.get("date")
+        for student in students_list:
+            present_status = request.form.get(str(student.id))
+            print(present_status)
+            if present_status!=None:
+                attendance = Attendance(present_status=True,course_id=temp_course.id,student_id=student.id)
+            else:
+                attendance = Attendance(present_status=False,course_id=temp_course.id,student_id=student.id)
+            db.session.add(attendance)
+            db.session.commit()
 
 
-    return render_template("attendance.html",user=current_user,students_list=students_list)
+    return render_template("attendance.html",user=current_user,students_list=students_list,course_name=course_name,student_names=student_names,date=date.today())
 
 
+@views.route('/attendance')
+@login_required
+@require_role('s')
+def attendance():
+    student = current_user.student[0]
+    rows = db.session.query(Course).count()
+    courses_list = []
+    for i in range(1,rows+1):
+        course = Course.query.get(i)
+        if course!=None:
+            student_ids = course.student_ids
+            for j in student_ids:
+                if j.student_id==student.id:
+                    courses_list.append(course)
+    attendance_percentages = {}
+    for course in courses_list:
+        count = 0
+        present = 0
+        for day in course.attendance:
+            if day.student_id==student.id:
+                count+=1
+                if day.present_status:
+                    present+=1
+        if count==0:
+            attendance_percentages[course.subject]=0
+        else:
+            attendance_percentages[course.subject]=int((present/count)*100)
+    print(attendance_percentages)
+    return render_template("progress.html",user=current_user,attendance_percentages=attendance_percentages)
 
 
 @views.route('/delete-note', methods=['POST'])
