@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "teacher_base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
 <h1 align="center">Attendance</h1>
@@ -11,7 +11,7 @@
         <form method="POST">
           <h3 class="card-title">Lecture Date</h3>
           <input type="date" class="form-control" placeholder="Date..." name="date" value={{date}} id="date" required>
-          <table class="table table-shopping table-striped">
+          <table class="table table-striped">
           <thead>
             <tr>
               <th class="text-center">Roll Number</th>
@@ -26,7 +26,7 @@
                   {{ student.regno }}
                 </td>
                 <td class="td-number text-center">
-                  {{ student_names[student.id] }}
+                  {{ student.user_name }}
                 </td>
                 <td class="td-number text-center">
                   <div class="form-check disabled">

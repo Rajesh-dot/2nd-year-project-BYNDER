@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<h1 align="center">Groups</h1>
+</br>
+{% for group in groups %}
+    <div class="card border border-dark mb-3">
+        <div class="card-header">
+            <h3 style="display: inline-block;">
+                {{group.group_name}}
+            </h3>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title">{{teachers[group.id]}}</h5>
+        </div>
+    </div>
+{% endfor %}
+{% endblock %}

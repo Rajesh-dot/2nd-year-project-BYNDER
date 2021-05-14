@@ -1,0 +1,15 @@
+{% extends "teacher_base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1 align="center">Profile</h1>
+<h2 >{{ user.first_name }}</h2>
+{% for t in user.teacher %}
+    <h2>Class:</h2>
+    {% for teach in t.courses %}
+        <h2>{{ teach.subject }}</h2>
+        <h2>{{ teach.year }}</h2>
+        <h2>{{ teach.branch }}</h2>
+        <h2>{{ teach.section }}</h2>
+    {% endfor %}
+{% endfor %}
+{% endblock %}

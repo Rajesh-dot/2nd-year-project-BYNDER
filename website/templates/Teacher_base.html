@@ -16,12 +16,18 @@
             crossorigin="anonymous"
         />
         <!--<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='main.css') }}">-->
+        <!--<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/mdb.dark.min.css') }}">-->
+        <!--<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/mdb.dark.rtl.min.css') }}">-->
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/mdb.min.css') }}">
+        <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/mdb.rtl.min.css') }}">
         <title>{% block title %}Home{% endblock %}</title>
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar">
-                <span class="navbar-toggler-icon"></span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="35" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5z"/>
+                </svg>
             </button>
             <div class="collapse navbar-collapse" id="navbar">
                 <div class="navbar-nav">
@@ -34,6 +40,7 @@
                     <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
                     <a class="nav-item nav-link" id="addcourse" href="/add_course">Add Course</a>
                     <a class="nav-item nav-link" id="classes" href="/classes">Classes</a>
+                    <a class="nav-item nav-link" id="create group" href="/create_group">Create Group</a>
                     {% else %}
                     <a class="nav-item nav-link" id="login" href="/login">Login</a>
                     <a class="nav-item nav-link" id="sign-up" href="/sign-up">Sign Up</a>
@@ -81,7 +88,7 @@
             crossorigin="anonymous"
         ></script>
         <script>
-            src = "http://localhost:5000/static/index.js"
+            src = "{{url_for('static', filename='js/mdb.js')}}"
         </script>
     </body>
 </html>

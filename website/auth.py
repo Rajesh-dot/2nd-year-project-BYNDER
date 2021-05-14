@@ -71,7 +71,7 @@ def sign_up():
                 db.session.add(new_user)
                 db.session.commit()
                 login_user(new_user, remember=True)
-                teacher = Teacher(user_id=current_user.id)
+                teacher = Teacher(user_id=current_user.id, user_name=firstName)
                 db.session.add(teacher)
                 db.session.commit()
                 flash("Account Created!", category='success')

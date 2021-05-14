@@ -10,7 +10,8 @@ class Note(db.Model):
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     user_ids = db.relationship("Array_ids")
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    #user_name = db.Column(db.String(150), db.ForeignKey('user.first_name'))
+    user_name = db.Column(db.String(150))
+
 
 class Array_ids(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -38,13 +39,15 @@ class Student(db.Model):
     semester = db.Column(db.Integer)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     attendance = db.relationship('Attendance')
-
+    user_name = db.Column(db.String(150))
 
 
 class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_name = db.Column(db.String(150))
     courses = db.relationship('Course')
+    groups = db.relationship('Group')
 
 
 class Course(db.Model):
@@ -57,17 +60,32 @@ class Course(db.Model):
     student_ids = db.relationship('Student_ids')
     attendance = db.relationship('Attendance')
 
+
 class Student_ids(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
     student_id = db.Column(db.Integer)
 
+
 class Attendance(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     present_status = db.Column(db.Boolean)
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
+
+
+class Group(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    group_name = db.Column(db.String(30))
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+    student_ids = db.relationship('Group_student_id')
+
+
+class Group_student_id(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    student_id = db.Column(db.Integer)
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
 
 
 '''
