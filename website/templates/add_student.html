@@ -1,0 +1,94 @@
+{% extends "admin_base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block content %}
+<form method="POST">
+    {{ form.csrf_token }}
+    <h2 align="center">Add Student</h2>
+    <div class="form-group">
+        {{ form.email.label(class="form-control-label") }}
+        {% if form.email.errors %}
+            {{ form.email(class="form-control form-control is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.email.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.email(class="form-control", placeholder="Enter Email") }}
+        {% endif %}
+    </div>
+    <div class="form-group">
+        {{ form.username.label(class="form-control-label") }}
+        {% if form.username.errors %}
+            {{ form.username(class="form-control form-control is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.username.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.username(class="form-control form-control", placeholder="Enter Name") }}
+        {% endif %}
+    </div>
+    <div class="form-group">
+        {{ form.regno.label(class="form-control-label") }}
+        {% if form.regno.errors %}
+            {{ form.regno(class="form-control form-control is-invalid") }}
+            <div class="invalid-feedback">
+                {% for error in form.regno.errors %}
+                    <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+        {% else %}
+            {{ form.regno(class="form-control form-control", placeholder="Enter Register Number") }}
+        {% endif %}
+    </div>
+    <div class="form-group">
+        <label for="branch">Branch</label>
+        <select class="form-control" name="branch" id="branch">
+            <option value="cse">CSE</option>
+            <option value="it">IT</option>
+            <option value="mech">MECH</option>
+            <option value="eee">EEE</option>
+            <option value="ece">ECE</option>
+            <option value="civil">CIVIL</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="section">Section</label>
+        <select class="form-control" name="section" id="section">
+            <option value="a">A</option>
+            <option value="b">B</option>
+            <option value="c">C</option>
+            <option value="d">D</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="year">Year</label>
+        <select class="form-control" name="year" id="year">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="sem">Semester</label>
+        <select class="form-control" name="sem" id="sem">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+        </select>
+    </div>
+    </br>
+    <div class="form-group">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+</br>
+{% endblock %}

@@ -2,6 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -15,9 +16,11 @@ def create_app():
 
     from .views import views
     from .auth import auth
+    from .admin import admin
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(admin, url_prefix='/')
 
     from .models import User, Note
 
@@ -35,6 +38,12 @@ def create_app():
 
 
 def create_database(app):
+    from .models import User
     if not path.exists('website/'+DB_NAME):
         db.create_all(app=app)
         print("Created Database!")
+        new_user = User(email='rajesh@grasp.com', first_name='admin', password=generate_password_hash(
+            '1234567', method='sha256'), user_type='a')
+        db.session.add(new_user)
+        db.session.commit()
+        print('Admin added!')

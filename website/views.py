@@ -42,6 +42,10 @@ def home():
         return render_template("home.html", user=current_user, notes=user_notes)
     elif current_user.user_type.lower() == 'p':
         return render_template("teacher_home.html", user=current_user, notes=user_notes)
+    elif current_user.user_type.lower() == 'a':
+        return render_template('admin.html', user=current_user)
+    else:
+        return redirect(url_for(views.logout))
 
 
 @views.route('/student_info', methods=['GET', 'POST'])
@@ -73,6 +77,8 @@ def profile():
         return render_template('student_profile.html', user=current_user)
     elif current_user.user_type == 'p':
         return render_template('teacher_profile.html', user=current_user)
+    elif current_user.user_type == 'a':
+        return render_template('admin.html', user=current_user)
 
 
 @views.route('/addpost', methods=['GET', 'POST'])
@@ -199,7 +205,6 @@ def add_course():
                     db.session.add(student_ids)
                     db.session.commit()
             flash('Information added sucessfully', category="success")
-    print(db.session.query(Course).count())
     return render_template('addcourse.html', user=current_user)
 
 
