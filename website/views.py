@@ -6,6 +6,7 @@ from . import db
 from functools import wraps
 import json
 from datetime import date
+from .forms import NoticeForm
 
 views = Blueprint('views', __name__)
 
@@ -85,8 +86,11 @@ def profile():
 @login_required
 @require_role(role="p")
 def addpost():
-    if request.method == 'POST':
-        note = request.form.get('note')
+    form = NoticeForm()
+    if form.validate_on_submit():
+        title = form.title.data
+        note = form.content.data
+        print(note)
         sections = {'a': False, 'b': False, 'c': False, 'd': False}
         branchs = {'cse': False, 'it': False, 'mech': False,
                    'ece': False, 'eee': False, 'civil': False}
@@ -152,12 +156,12 @@ def addpost():
             flag3 = False
             flash("Note is too short!", category="error")
         if flag3:
-            # print(current_user.id)
             notice = Note(data=note, user_id=current_user.id,
-                          user_name=current_user.first_name)
+                          user_name=current_user.first_name, title=title, notice_type=current_user.user_type)
             db.session.add(notice)
             db.session.commit()
             students = Student.query.all()
+            print(notice.data)
             for student in students:
                 if sections[student.section] and branchs[student.branch] and years[str(student.year)]:
                     array_ids = Array_ids(
@@ -177,9 +181,10 @@ def addpost():
             flash('Note added!', category='success')
         else:
             flash("Retry some error occured", category="success")
-    return render_template("addnotice.html", user=current_user)
+    return render_template("addnotice.html", user=current_user, form=form)
 
 
+'''
 @views.route('/add_course', methods=['GET', 'POST'])
 @login_required
 @require_role(role='p')
@@ -206,6 +211,7 @@ def add_course():
                     db.session.commit()
             flash('Information added sucessfully', category="success")
     return render_template('addcourse.html', user=current_user)
+'''
 
 
 @views.route('/courses')

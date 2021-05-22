@@ -1,3 +1,4 @@
+from sqlalchemy.orm import backref
 from . import db
 from flask_login import UserMixin
 from flask_security import RoleMixin
@@ -6,10 +7,12 @@ from sqlalchemy.sql import func
 
 class Note(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    data = db.Column(db.String(10000))
+    title = db.Column(db.String(150))
+    data = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     user_ids = db.relationship("Array_ids")
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    notice_type = db.Column(db.String(1))
     user_name = db.Column(db.String(150))
 
 
@@ -21,22 +24,27 @@ class Array_ids(db.Model):
 
 class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(150), unique=True)
-    password = db.Column(db.String(150))
-    first_name = db.Column(db.String(150))
-    user_type = db.Column(db.String(1))
-    notes = db.relationship('Note')
-    student = db.relationship('Student')
-    teacher = db.relationship('Teacher')
+    email = db.Column(db.String(150), unique=True, nullable=False)
+    password = db.Column(db.String(150), nullable=False)
+    first_name = db.Column(db.String(150), nullable=False)
+    user_type = db.Column(db.String(1), nullable=False)
+    notes = db.relationship('Note', backref='author', lazy=True)
+    student = db.relationship('Student', backref='user')
+    teacher = db.relationship('Teacher', backref='user')
+    mobile = db.Column(db.Integer, nullable=False)
+    profile_pic = db.Column(
+        db.String(150), nullable=False, default="default.jpg")
+    dob = db.Column(db.DateTime(timezone=True), nullable=False)
+    gender = db.Column(db.String(1), nullable=False)
 
 
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    regno = db.Column(db.String(10), unique=True)
-    branch = db.Column(db.String(20))
-    section = db.Column(db.String(1))
-    year = db.Column(db.Integer)
-    semester = db.Column(db.Integer)
+    regno = db.Column(db.String(10), unique=True, nullable=False)
+    branch = db.Column(db.String(20), nullable=False)
+    section = db.Column(db.String(1), nullable=False)
+    year = db.Column(db.Integer, nullable=False)
+    semester = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     attendance = db.relationship('Attendance')
     user_name = db.Column(db.String(150))
@@ -44,10 +52,12 @@ class Student(db.Model):
 
 class Teacher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    teacher_regno = db.Column(db.String, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user_name = db.Column(db.String(150))
     courses = db.relationship('Course')
     groups = db.relationship('Group')
+    materials = db.relationship('Materials')
 
 
 class Course(db.Model):
@@ -59,6 +69,7 @@ class Course(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
     student_ids = db.relationship('Student_ids')
     attendance = db.relationship('Attendance')
+    materials = db.relationship('Materials')
 
 
 class Student_ids(db.Model):
@@ -70,15 +81,16 @@ class Student_ids(db.Model):
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), default=func.now())
-    present_status = db.Column(db.Boolean)
+    present_status = db.Column(db.Boolean, nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
 
 
 class Group(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    group_name = db.Column(db.String(30))
-    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+    group_name = db.Column(db.String(30), nullable=False)
+    teacher_id = db.Column(db.Integer, db.ForeignKey(
+        'teacher.id'), nullable=False)
     student_ids = db.relationship('Group_student_id')
 
 
@@ -86,6 +98,13 @@ class Group_student_id(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     student_id = db.Column(db.Integer)
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+
+
+class Materials(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    material = db.Column(db.String(150), nullable=False)
 
 
 '''

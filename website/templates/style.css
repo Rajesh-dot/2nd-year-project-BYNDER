@@ -65,10 +65,4 @@ button:hover {
   border: 1px solid;
   color: black;
 }
-p {
-  color: black;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-  font-size: large;
-  position: absolute;
-  left: 40%;
-}
+

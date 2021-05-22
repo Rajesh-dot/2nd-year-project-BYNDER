@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from os import path
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.sql import func
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -42,8 +43,19 @@ def create_database(app):
     if not path.exists('website/'+DB_NAME):
         db.create_all(app=app)
         print("Created Database!")
+        with app.app_context():
+            new_user = User(email='rajesh@grasp.com', first_name='admin', password=generate_password_hash(
+                '1234567', method='sha256'), user_type='a', dob=func.now(), mobile=8333030157, gender='m')
+            db.session.add(new_user)
+            db.session.commit()
+            print('Admin added!')
+
+
+def create_admin(app):
+    from .models import User
+    with app.app_context():
         new_user = User(email='rajesh@grasp.com', first_name='admin', password=generate_password_hash(
-            '1234567', method='sha256'), user_type='a')
+            '1234567', method='sha256'), user_type='a', dob=func.now(), mobile=8333030157, gender='m')
         db.session.add(new_user)
         db.session.commit()
         print('Admin added!')
