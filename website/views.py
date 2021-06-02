@@ -1,12 +1,15 @@
+import re
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
-from sqlalchemy.sql.functions import user
 from .models import Note, User, Student, Course, Teacher, Student_ids, Attendance, Array_ids, Group, Group_student_id
 from . import db
 from functools import wraps
 import json
-from datetime import date
-from .forms import NoticeForm
+from datetime import date, datetime
+from .forms import NoticeForm, UpdateAccountForm
+import os
+import secrets
+from PIL import Image
 
 views = Blueprint('views', __name__)
 
@@ -23,6 +26,22 @@ def require_role(role):
                 return func(*args, **kwargs)
         return wrapped_function
     return decorator
+
+
+def save_picture(form_picture):
+    random_hex = secrets.token_hex(8)
+    _, f_ext = os.path.splitext(form_picture.filename)
+    picture_fn = random_hex + f_ext
+    picture_path = os.path.join(
+        {{url_for('static', filename='img')}}, picture_fn)
+    print(picture_path)
+
+    output_size = (125, 125)
+    i = Image.open(form_picture)
+    i.thumbnail(output_size)
+    i.save(picture_path)
+
+    return picture_fn
 
 
 @views.route('/', methods=['GET', 'POST'])
@@ -394,6 +413,32 @@ def groups():
             teacher = Teacher.query.get(group.teacher_id)
             teachers[group.id] = teacher.user_name
     return render_template("groups.html", user=current_user, groups=groups_list, teachers=teachers)
+
+
+@views.route('/profile/edit', methods=['POST', 'GET'])
+@login_required
+def edit_profile():
+    if current_user.user_type == 's':
+        form = UpdateAccountForm()
+        if form.validate_on_submit():
+            if form.picture.data:
+                picture_file = save_picture(form.picture.data)
+                current_user.profile_pic = picture_file
+
+            dob = datetime.strptime(request.form.get('dob'), '%Y-%m-%d')
+            gender = request.form.get('gender')
+            current_user.first_name = form.username.data
+            current_user.email = form.email.data
+            current_user.gender = gender
+            current_user.dob = dob
+            db.session.commit()
+        elif request.method == 'GET':
+            form.username.data = current_user.first_name
+            form.email.data = current_user.email
+            form.mobile = current_user.mobile
+        image_file = url_for(
+            'static', filename='img/' + current_user.profile_pic)
+        return render_template("edit_profile.html", user=current_user, form=form, image_file=image_file)
 
 
 @views.route('/delete-note', methods=['POST'])
