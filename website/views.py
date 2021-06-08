@@ -1,17 +1,26 @@
 import re
-from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, send_from_directory
 from flask_login import login_required, current_user
 from .models import Note, User, Student, Course, Teacher, Student_ids, Attendance, Array_ids, Group, Group_student_id
 from . import db
 from functools import wraps
 import json
 from datetime import date, datetime
-from .forms import NoticeForm, UpdateAccountForm
+from .forms import NoticeForm, UpdateAccountForm, Change_password
 import os
 import secrets
 from PIL import Image
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
+
 
 views = Blueprint('views', __name__)
+
+ALLOWED_EXTENSIONS = {'pdf'}
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def require_role(role):
@@ -32,8 +41,8 @@ def save_picture(form_picture):
     random_hex = secrets.token_hex(8)
     _, f_ext = os.path.splitext(form_picture.filename)
     picture_fn = random_hex + f_ext
-    picture_path = os.path.join(
-        {{url_for('static', filename='img')}}, picture_fn)
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    picture_path = os.path.join(basedir, 'static/img', picture_fn)
     print(picture_path)
 
     output_size = (125, 125)
@@ -93,12 +102,13 @@ def student_info():
 @views.route('/profile')
 @login_required
 def profile():
+    image_file = url_for('static', filename='img/' + current_user.profile_pic)
     if current_user.user_type == 's':
-        return render_template('student_profile.html', user=current_user)
+        return render_template('student_profile.html', user=current_user, image_file=image_file)
     elif current_user.user_type == 'p':
-        return render_template('teacher_profile.html', user=current_user)
+        return render_template('teacher_profile.html', user=current_user, image_file=image_file)
     elif current_user.user_type == 'a':
-        return render_template('admin.html', user=current_user)
+        return render_template('admin.html', user=current_user, image_file=image_file)
 
 
 @views.route('/addpost', methods=['GET', 'POST'])
@@ -232,19 +242,18 @@ def add_course():
     return render_template('addcourse.html', user=current_user)
 '''
 
-
+'''
 @views.route('/courses')
 @login_required
-@require_role('s')
 def courses():
     student = current_user.student[0]
+    courses_ids = student.courses
     courses_list = []
-    student_ids = Student_ids.query.all()
-    for student_id in student_ids:
-        if student_id.student_id == student.id:
-            course = Course.query.get(student_id.course_id)
-            courses_list.append(course)
+    for i in courses_ids:
+        courses_list.append(Course.query.get(i.course_id))
+
     return render_template("courses.html", user=current_user, Teacher=Teacher, User=User, courses_list=courses_list)
+'''
 
 
 @views.route('/classes')
@@ -252,14 +261,37 @@ def courses():
 @require_role('p')
 def classes():
     teacher = current_user.teacher[0]
-    course_names = []
+    course_names = {}
     for course in teacher.courses:
         a = course.subject + " - " + \
             str(course.year) + " Yr " + course.branch.upper() + \
             " Sec " + course.section.upper()
-        course_names.append(a)
-    course_names = list(set(course_names))
+        course_names[course.course_name] = a
     return render_template('classes.html', user=current_user, course_names=course_names)
+
+
+@views.route('/courses')
+@login_required
+def courses():
+    if current_user.user_type == 'p':
+        teacher = current_user.teacher[0]
+        course_names = {}
+        for course in teacher.courses:
+            a = course.subject + " - " + \
+                str(course.year) + " Yr " + course.branch.upper() + \
+                " Sec " + course.section.upper()
+            course_names[course.course_name] = a
+    else:
+        student = current_user.student[0]
+        courses_ids = student.courses
+        course_names = {}
+        for i in courses_ids:
+            course = Course.query.get(i.course_id)
+            a = course.subject + " - " + \
+                str(course.year) + " Yr " + course.branch.upper() + \
+                " Sec " + course.section.upper()
+            course_names[course.course_name] = a
+    return render_template('courses.html', user=current_user, course_names=course_names)
 
 
 @views.route('/<course>', methods=['GET', 'POST'])
@@ -267,39 +299,16 @@ def classes():
 @require_role('p')
 def subject(course):
     course_name = course
-    flag = True
-    try:
-        values = ['', '', '', '']
-        split = [' - ', ' Yr ', ' Sec ']
-        for i in range(3):
-            course = course.split(split[i])
-            values[i] = course[0]
-            course = course[1]
-        values[3] = course
-    except:
-        return f"<h1>404 NOT FOUND</h>"
-
-    subject = values[0]
-    year = int(values[1])
-    branch = values[2].lower()
-    section = values[3].lower()
-
-    if year > 4 or year < 1:
-        return f"<h1>404 NOT FOUND</h>"
-
-    if branch not in ['cse', 'it', 'mech', 'civil', 'eee', 'ece']:
-        return f"<h1>404 NOT FOUND</h>"
-
-    if section not in ['a', 'b', 'c', 'd']:
+    course = Course.query.filter_by(course_name=course_name).first()
+    if course:
+        year = course.year
+        branch = course.branch
+        section = course.section
+    else:
         return f"<h1>404 NOT FOUND</h>"
 
     teacher = current_user.teacher[0]
-    flag = True
-    for course in teacher.courses:
-        if course.subject == subject and course.year == int(values[1]) and course.branch == values[2].lower() and course.section == values[3].lower():
-            temp_course = course
-            flag = False
-    if flag:
+    if teacher.id != course.teacher_id:
         return redirect("/")
 
     students_list = []
@@ -313,10 +322,10 @@ def subject(course):
             present_status = request.form.get(str(student.id))
             if present_status != None:
                 attendance = Attendance(
-                    present_status=True, course_id=temp_course.id, student_id=student.id)
+                    present_status=True, course_id=course.id, student_id=student.id)
             else:
                 attendance = Attendance(
-                    present_status=False, course_id=temp_course.id, student_id=student.id)
+                    present_status=False, course_id=course.id, student_id=student.id)
             db.session.add(attendance)
             db.session.commit()
 
@@ -435,10 +444,61 @@ def edit_profile():
         elif request.method == 'GET':
             form.username.data = current_user.first_name
             form.email.data = current_user.email
-            form.mobile = current_user.mobile
+            form.mobile.data = current_user.mobile
         image_file = url_for(
             'static', filename='img/' + current_user.profile_pic)
         return render_template("edit_profile.html", user=current_user, form=form, image_file=image_file)
+
+
+@views.route('/change_password', methods=['POST', 'GET'])
+@login_required
+def change_password():
+    form = Change_password()
+    if form.validate_on_submit():
+        if check_password_hash(current_user.password, form.password.data):
+            current_user.password = generate_password_hash(
+                form.new_password.data, method='sha256')
+            db.session.commit()
+            flash("Password Changed Sucessfully", category="success")
+        else:
+            flash("Incorrect password, try again.", category="error")
+    return render_template("change_password.html", user=current_user, form=form)
+
+
+@views.route('/forget_password', methods=['POST', 'GET'])
+def forget_password():
+    pass
+
+
+@views.route('/course/<course_name>/add_material')
+@login_required
+@require_role('p')
+def add_material(course_name):
+    course_name = course_name
+    course = Course.query.filter_by(course_name=course_name).first()
+    if course:
+        teacher = current_user.teacher[0]
+        if course in teacher.courses:
+            if request.method == 'POST':
+                if 'file' not in request.files:
+                    flash('No file attached in request', category='error')
+                file = request.files['file']
+                if file.filename == '':
+                    flash('No file selected', category='error')
+                elif file and allowed_file(file.filename):
+                    filename = secure_filename(file.filename)
+                    basedir = os.path.abspath(os.path.dirname(__file__))
+                    file.save(os.path.join(
+                        basedir, 'static/uploads', filename))
+                    flash("File uploaded succesfully", category='success')
+                else:
+                    flash('File not allowed', category='error')
+            return render_template("add_material.html", user=current_user)
+        else:
+            flash("No permission", category="error")
+            return redirect('/')
+    else:
+        return f"<h1>404 NOT FOUND</h>"
 
 
 @views.route('/delete-note', methods=['POST'])
@@ -456,7 +516,22 @@ def delete_note():
 @views.route('/test', methods=['GET', 'POST'])
 def test():
     if request.method == 'POST':
-        year = request.form.get("year")
-        print(year)
-        print(type(year))
-    return render_template('test.html', user=current_user)
+        if 'file' not in request.files:
+            flash('No file attached in request', category='error')
+        file = request.files['file']
+        if file.filename == '':
+            flash('No file selected', category='error')
+        elif file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            basedir = os.path.abspath(os.path.dirname(__file__))
+            file.save(os.path.join(basedir, 'static/uploads', filename))
+            flash("File uploaded succesfully", category='success')
+        else:
+            flash('File not allowed', category='error')
+    return render_template('test.html', user=current_user,)
+
+
+@views.route('/download/<filename>')
+def uploaded_file(filename):
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    return send_from_directory(os.path.join(basedir, 'static/uploads'), filename, as_attachment=True)

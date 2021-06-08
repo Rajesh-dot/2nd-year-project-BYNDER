@@ -76,3 +76,32 @@ class AddCourse(FlaskForm):
     subject = StringField('Subject', validators=[DataRequired()])
     teacher_id = StringField('Teacher_id', validators=[DataRequired()])
     submit = SubmitField('Post')
+
+
+class Change_password(FlaskForm):
+    password = PasswordField('password', validators=[
+                             DataRequired(), Length(min=4, max=30)])
+    new_password = PasswordField('new_Password', validators=[
+                                 DataRequired(), Length(min=4, max=30)])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('new_password'), Length(min=4, max=30)])
+    submit = SubmitField('Update')
+
+
+class RequestResetForm(FlaskForm):
+    email = StringField('Email',
+                        validators=[DataRequired(), Email()])
+    submit = SubmitField('Request Password Reset')
+
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if user is None:
+            raise ValidationError(
+                'There is no account with that email. You must register first.')
+
+
+class ResetPasswordForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password',
+                                     validators=[DataRequired(), EqualTo('password')])
+    submit = SubmitField('Reset Password')

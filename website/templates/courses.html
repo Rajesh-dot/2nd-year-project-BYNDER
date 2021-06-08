@@ -1,19 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<h1 align="center">Profile</h1>
-<h2 >{{ user.first_name }}</h2>
-{% set stu = user.student[0] %}
-<h2>Course:</h2>
-{% for teach in courses_list %}
-    <h2>{{ teach.subject }}</h2>
-    <h2>{{ teach.year }}</h2>
-    <h2>{{ teach.branch }}</h2>
-    <h2>{{ teach.section }}</h2>
-    {% set teacher = Teacher.query.get(teach.teacher_id) %}
-    {% set idx = teacher.user_id %}
-    {% set user_teacher = User.query.get(idx) %}
-    <h2>{{ teach.teacher_id }}</h2>
-    <h2>{{ user_teacher.first_name }}</h2>
+<h1 align="center">Courses</h1>
+</br>
+{% for course in course_names %}
+    <a href='/{{course}}'>
+        <button class="btn btn-success btn-lg btn-block">
+            {{ course_names[course] }}
+        </button>
+    </a>
+    </br>
 {% endfor %}
 {% endblock %}

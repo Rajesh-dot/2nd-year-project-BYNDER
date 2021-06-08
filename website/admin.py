@@ -23,8 +23,12 @@ def add_student():
         sem = request.form.get('sem')
         dob = datetime.strptime(request.form.get('dob'), '%Y-%m-%d')
         gender = request.form.get('gender')
+        if gender == 'm':
+            img = "boy.png"
+        else:
+            img = "girl.jpg"
         new_user = User(email=form.email.data, first_name=form.username.data, password=generate_password_hash(
-            "1234567", method='sha256'), user_type='s', gender=gender, dob=dob, mobile=int(form.mobile.data))
+            "1234567", method='sha256'), user_type='s', gender=gender, dob=dob, mobile=int(form.mobile.data), profile_pic=img)
         db.session.add(new_user)
         db.session.commit()
         student = Student(regno=form.regno.data, branch=branch, year=year,
@@ -43,8 +47,12 @@ def add_teacher():
     if form.validate_on_submit():
         dob = datetime.strptime(request.form.get('dob'), '%Y-%m-%d')
         gender = request.form.get('gender')
+        if gender == 'm':
+            img = "boy.png"
+        else:
+            img = "girl.jpg"
         new_user = User(email=form.email.data, first_name=form.username.data, password=generate_password_hash(
-            "1234567", method='sha256'), user_type='p', gender=gender, dob=dob, mobile=int(form.mobile.data))
+            "1234567", method='sha256'), user_type='p', gender=gender, dob=dob, mobile=int(form.mobile.data), profile_pic=img)
         db.session.add(new_user)
         db.session.commit()
         teacher = Teacher(user_id=new_user.id, user_name=new_user.first_name,
@@ -67,8 +75,9 @@ def add_course():
         teacher = Teacher.query.filter_by(
             teacher_regno=form.teacher_id.data).first()
         if teacher:
+            course_name = form.subject.data+"-"+str(year)+"-"+branch+section
             course = Course(subject=form.subject.data, branch=branch,
-                            year=year, section=section, teacher_id=teacher.id)
+                            year=year, section=section, teacher_id=teacher.id, course_name=course_name)
             db.session.add(course)
             db.session.commit()
             students = Student.query.all()

@@ -24,7 +24,6 @@
     <form method="POST" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         {{ form.csrf_token }}
-        {{form.picture}}
         <fieldset class="form-group">
             <legend class="border-bottom mb-4">Account Info</legend>
             <div class="form-group">
@@ -55,6 +54,19 @@
                 {% endif %}
             </div>
             <div class="form-group">
+                {{ form.mobile.label(class="form-control-label") }}
+                {% if form.mobile.errors %}
+                    {{ form.mobile(class="form-control form-control is-invalid") }}
+                    <div class="invalid-feedback">
+                        {% for error in form.mobile.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.mobile(class="form-control form-control", placeholder="Enter Mobile Number") }}
+                {% endif %}
+            </div>
+            <div class="form-group">
                 {{ form.picture.label() }}
                 {{ form.picture(class="form-control-file") }}
                 {% if form.picture.errors %}
@@ -62,6 +74,17 @@
                         <span class="text-danger">{{ error }}</span></br>
                     {% endfor %}
                 {% endif %}
+            </div>
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select class="form-control" name="gender" id="gender">
+                    <option value="f">Female</option>
+                    <option value="m">Male</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="dob">Date of birth</label>
+                <input type="date" class="form-control" placeholder="Date of Birth" name="dob" id="dob" value={{date}} required>
             </div>
         </fieldset>
         <div class="form-group">

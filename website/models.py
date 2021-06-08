@@ -18,7 +18,7 @@ class Note(db.Model):
 
 class Array_ids(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     note_id = db.Column(db.Integer, db.ForeignKey('note.id'))
 
 
@@ -29,6 +29,7 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.String(150), nullable=False)
     user_type = db.Column(db.String(1), nullable=False)
     notes = db.relationship('Note', backref='author', lazy=True)
+    array_ids = db.relationship('Array_ids')
     student = db.relationship('Student', backref='user')
     teacher = db.relationship('Teacher', backref='user')
     mobile = db.Column(db.Integer, nullable=False)
@@ -47,6 +48,8 @@ class Student(db.Model):
     semester = db.Column(db.Integer, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     attendance = db.relationship('Attendance')
+    courses = db.relationship('Student_ids')
+    groups = db.relationship('Group_student_id')
     user_name = db.Column(db.String(150))
 
 
@@ -66,6 +69,7 @@ class Course(db.Model):
     section = db.Column(db.String(1))
     year = db.Column(db.Integer)
     subject = db.Column(db.String(50))
+    course_name = db.Column(db.String(100))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
     student_ids = db.relationship('Student_ids')
     attendance = db.relationship('Attendance')
@@ -75,7 +79,7 @@ class Course(db.Model):
 class Student_ids(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
-    student_id = db.Column(db.Integer)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
 
 
 class Attendance(db.Model):
@@ -96,7 +100,7 @@ class Group(db.Model):
 
 class Group_student_id(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    student_id = db.Column(db.Integer)
+    student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
     group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
 
 
