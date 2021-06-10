@@ -1,9 +1,9 @@
 {% extends "admin_base.html" %}
-{% block title %}Sign Up{% endblock %}
+{% block title %}Add Teacher{% endblock %}
 {% block content %}
 <form method="POST">
     {{ form.csrf_token }}
-    <h2 align="center">Add Student</h2>
+    <h2 align="center">Add Teacher</h2>
     <div class="form-group">
         {{ form.email.label(class="form-control-label") }}
         {% if form.email.errors %}

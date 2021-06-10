@@ -1,14 +1,29 @@
 {% extends "base.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}Courses{% endblock %}
 {% block content %}
 <h1 align="center">Courses</h1>
 </br>
 {% for course in course_names %}
-    <a href='/{{course}}'>
+    <a href='/courses/{{course}}'>
         <button class="btn btn-success btn-lg btn-block">
             {{ course_names[course] }}
         </button>
     </a>
     </br>
 {% endfor %}
+{% endblock %}
+{% block navbar %}
+{% if user.user_type=='p' %}
+<a class="nav-item nav-link" id="home" href="/">Home</a>
+<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+<a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
+<a class="nav-item nav-link" id="courses" href="/courses">Courses</a>
+<a class="nav-item nav-link" id="groups" href="/groups">Groups</a>
+{% else %}
+<a class="nav-item nav-link" id="home" href="/">Home</a>
+<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+<a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
+<a class="nav-item nav-link" id="courses" href="/courses">Courses</a>
+<a class="nav-item nav-link" id="groups" href="/groups">Groups</a>
+{% endif %}
 {% endblock %}

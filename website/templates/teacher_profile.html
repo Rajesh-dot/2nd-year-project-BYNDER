@@ -1,15 +1,96 @@
 {% extends "teacher_base.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}Profile{% endblock %}
 {% block content %}
 <h1 align="center">Profile</h1>
-<h2 >{{ user.first_name }}</h2>
-{% for t in user.teacher %}
-    <h2>Class:</h2>
-    {% for teach in t.courses %}
-        <h2>{{ teach.subject }}</h2>
-        <h2>{{ teach.year }}</h2>
-        <h2>{{ teach.branch }}</h2>
-        <h2>{{ teach.section }}</h2>
-    {% endfor %}
-{% endfor %}
+{% set stu = user.student[0] %}
+{% set c=0 %}
+<div class="container">
+    <div class="main-body">
+          <div class="row gutters-sm">
+            <div class="col-md-4 mb-3">
+              <div class="card ">
+                <div class="card-body">
+                  <div class="d-flex flex-column align-items-center text-center">
+                    <img src="{{image_file}}" alt="profile-pic" class="rounded-circle" width="150">
+                    <div class="mt-3">
+                      <h4>{{ user.first_name }}</h4>
+                      <p class="text mb-1">{{ user.email }}</p>
+                      <p class="text-muted font-size-sm">Vasireddy Venkatadri Institute of Technology</p>
+                      <a class="btn btn-primary" href="/profile/edit" role="button">Edit Profile</a>
+                      <a class="btn btn-primary" href="/change_password" role="button">Change Password</a>
+                      <!--<button class="btn btn-outline-primary">Change Password</button>-->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-8">
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Full Name</h6>
+                    </div>
+                    <div class="col-sm-9 text">
+                      {{ user.first_name }}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Email</h6>
+                    </div>
+                    <div class="col-sm-9 text">
+                      {{ user.email }}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Father Name</h6>
+                    </div>
+                    <div class="col-sm-9 text">
+                      ABC
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Mobile</h6>
+                    </div>
+                    <div class="col-sm-9 text">
+                      {{user.mobile}}
+                    </div>
+                  </div>
+                  <hr>
+                  <div class="row">
+                    <div class="col-sm-3">
+                      <h6 class="mb-0">Address</h6>
+                    </div>
+                    <div class="col-sm-9 text">
+                      Guntur
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+    </div>
+</br>
+</br>
+{% endblock %}
+{% block navbar %}
+{% if user.is_authenticated %}
+<a class="nav-item nav-link" id="home" href="/">Home</a>
+<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+<a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
+<a class="nav-item nav-link" id="courses" href="/courses">Courses</a>
+<a class="nav-item nav-link" id="attendance" href="/attendance">Attendance</a>
+<a class="nav-item nav-link" id="groups" href="/groups">Groups</a>
+{% else %}
+<a class="nav-item nav-link" id="login" href="/login">Login</a>
+<a class="nav-item nav-link" id="sign-up" href="/sign-up">Sign Up</a>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Attendance{% endblock %}
+{% block content %}
+</br>
+</br>
+</br>
+<div class="card">
+    <div class="card-body"><h2 align="center">{{course.course_name}}<h2></div>
+    <div class="card-body">
+        <i style="display: inline-block;" aria-hidden="true" class="fas fa-graduation-cap" align="center"></i>
+        <h3 style="display: inline-block;" align="center">
+            {{name}}
+        </h3>
+    </div>
+</div>
+</br>
+</br>
+<div class="card">
+    <div class="card-body">
+        <h4>{{course.course_name}}, {{attendance_percentages}}%</h4>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: {{attendance_percentages}}%" aria-valuenow="{{attendance_percentages}}" aria-valuemin="0" aria-valuemax="100"></div>
+        </div>
+    </div>
+</div>
+
+</br>
+{% endblock %}
+{% block navbar %}
+{% if user.user_type=='p' %}
+<a class="nav-item nav-link" id="home" href="/">Home</a>
+<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+<a class="nav-item nav-link" id="attendance" href="/courses/{{course.course_name}}/take_attendance">Take Attendance</a>
+<a class="nav-item nav-link" id="groups" href="/course/{{course.course_name}}/add_material">Add Material</a>
+{% else %}
+<a class="nav-item nav-link" id="home" href="/">Home</a>
+<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+<a class="nav-item nav-link" id="attendance" href="/courses/{{course.course_name}}">{{course.course_name}}</a>
+<a class="nav-item nav-link" id="attendance" href="/courses">Courses</a>
+{% endif %}
+{% endblock %}
+

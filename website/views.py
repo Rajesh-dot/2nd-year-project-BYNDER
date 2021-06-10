@@ -1,7 +1,6 @@
-import re
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for, send_from_directory
 from flask_login import login_required, current_user
-from .models import Note, User, Student, Course, Teacher, Student_ids, Attendance, Array_ids, Group, Group_student_id
+from .models import Materials, Note, User, Student, Course, Teacher, Student_ids, Attendance, Array_ids, Group, Group_student_id
 from . import db
 from functools import wraps
 import json
@@ -12,6 +11,7 @@ import secrets
 from PIL import Image
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+import time
 
 
 views = Blueprint('views', __name__)
@@ -51,6 +51,54 @@ def save_picture(form_picture):
     i.save(picture_path)
 
     return picture_fn
+
+
+def validate_course(course_name):
+    course = Course.query.filter_by(course_name=course_name).first()
+    if course:
+        if current_user.user_type == 'p':
+            teacher = current_user.teacher[0]
+            courses = teacher.courses
+            if course in courses:
+                return True
+            else:
+                return False
+        else:
+            student = current_user.student[0]
+            courses_ids = student.courses
+            for i in courses_ids:
+                temp_course = Course.query.get(i.course_id)
+                if course.id == temp_course.id:
+                    return True
+            return False
+
+    else:
+        return False
+
+
+def get_attendance():
+    student = current_user.student[0]
+    courses_list = []
+    total_courses = Course.query.all()
+    for course in total_courses:
+        student_ids = course.student_ids
+        for j in student_ids:
+            if j.student_id == student.id:
+                courses_list.append(course)
+    attendance_percentages = {}
+    for course in courses_list:
+        count = 0
+        present = 0
+        for day in course.attendance:
+            if day.student_id == student.id:
+                count += 1
+                if day.present_status:
+                    present += 1
+        if count == 0:
+            attendance_percentages[course] = 0
+        else:
+            attendance_percentages[course] = int((present/count)*100)
+    return attendance_percentages
 
 
 @views.route('/', methods=['GET', 'POST'])
@@ -104,7 +152,9 @@ def student_info():
 def profile():
     image_file = url_for('static', filename='img/' + current_user.profile_pic)
     if current_user.user_type == 's':
-        return render_template('student_profile.html', user=current_user, image_file=image_file)
+        attendance_percentages = get_attendance()
+        colors = ['primary', 'danger', 'success', 'warning', 'info']
+        return render_template('student_profile.html', user=current_user, image_file=image_file, attendance_percentages=attendance_percentages, colors=colors)
     elif current_user.user_type == 'p':
         return render_template('teacher_profile.html', user=current_user, image_file=image_file)
     elif current_user.user_type == 'a':
@@ -267,7 +317,7 @@ def classes():
             str(course.year) + " Yr " + course.branch.upper() + \
             " Sec " + course.section.upper()
         course_names[course.course_name] = a
-    return render_template('classes.html', user=current_user, course_names=course_names)
+    return render_template('courses.html', user=current_user, course_names=course_names)
 
 
 @views.route('/courses')
@@ -294,7 +344,7 @@ def courses():
     return render_template('courses.html', user=current_user, course_names=course_names)
 
 
-@views.route('/<course>', methods=['GET', 'POST'])
+@views.route('/course/<course>/take_attendance', methods=['GET', 'POST'])
 @login_required
 @require_role('p')
 def subject(course):
@@ -317,7 +367,7 @@ def subject(course):
         if student.branch == branch and student.section == section and student.year == year:
             students_list.append(student)
     if request.method == 'POST':
-        #date = request.form.get("date")
+        # date = request.form.get("date")
         for student in students_list:
             present_status = request.form.get(str(student.id))
             if present_status != None:
@@ -332,32 +382,49 @@ def subject(course):
     return render_template("attendance.html", user=current_user, students_list=students_list, course_name=course_name, date=date.today())
 
 
+@views.route('/courses/<course_name>', methods=['GET', 'POST'])
+@login_required
+def course_home(course_name):
+    if validate_course(course_name):
+        course = Course.query.filter_by(course_name=course_name).first()
+        teacher = Teacher.query.get(course.teacher_id)
+        name = teacher.user_name
+        materials = course.materials
+        materials_sizes = {}
+        basedir = os.path.abspath(os.path.dirname(__file__))
+        times = {}
+        for i in materials:
+            path = os.path.join(basedir, 'static/uploads', i.material)
+            materials_sizes[i] = os.path.getsize(path)
+            times[i] = time.ctime(os.path.getctime(path))
+        materials.reverse()
+        return render_template('classes.html', user=current_user, materials=materials, name=name, course=course, sizes=materials_sizes, times=times)
+    else:
+        return f"<h1>404 NOT FOUND</h>"
+
+
 @views.route('/attendance')
 @login_required
 @require_role('s')
 def attendance():
-    student = current_user.student[0]
-    courses_list = []
-    total_courses = Course.query.all()
-    for course in total_courses:
-        student_ids = course.student_ids
-        for j in student_ids:
-            if j.student_id == student.id:
-                courses_list.append(course)
-    attendance_percentages = {}
-    for course in courses_list:
-        count = 0
-        present = 0
-        for day in course.attendance:
-            if day.student_id == student.id:
-                count += 1
-                if day.present_status:
-                    present += 1
-        if count == 0:
-            attendance_percentages[course.subject] = 0
-        else:
-            attendance_percentages[course.subject] = int((present/count)*100)
-    return render_template("progress.html", user=current_user, attendance_percentages=attendance_percentages)
+    attendance_percentages = get_attendance()
+    values = attendance_percentages.values()
+    total = sum(values)//len(values)
+    return render_template("progress.html", user=current_user, attendance_percentages=attendance_percentages, total=total)
+
+
+@views.route('/course/<course_name>/attendance')
+@login_required
+@require_role('s')
+def course_attendance(course_name):
+    if validate_course(course_name):
+        course = Course.query.filter_by(course_name=course_name).first()
+        attendance_percentages = get_attendance()[course]
+        teacher = Teacher.query.get(course.teacher_id)
+        name = teacher.user_name
+        return render_template("course_attendance.html", user=current_user, attendance_percentages=attendance_percentages, course=course, name=name)
+    else:
+        f"<h1>404 NOT FOUND</h1>"
 
 
 @views.route('/create_group', methods=['GET', 'POST'])
@@ -427,27 +494,26 @@ def groups():
 @views.route('/profile/edit', methods=['POST', 'GET'])
 @login_required
 def edit_profile():
-    if current_user.user_type == 's':
-        form = UpdateAccountForm()
-        if form.validate_on_submit():
-            if form.picture.data:
-                picture_file = save_picture(form.picture.data)
-                current_user.profile_pic = picture_file
+    form = UpdateAccountForm()
+    if form.validate_on_submit():
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            current_user.profile_pic = picture_file
 
-            dob = datetime.strptime(request.form.get('dob'), '%Y-%m-%d')
-            gender = request.form.get('gender')
-            current_user.first_name = form.username.data
-            current_user.email = form.email.data
-            current_user.gender = gender
-            current_user.dob = dob
-            db.session.commit()
-        elif request.method == 'GET':
-            form.username.data = current_user.first_name
-            form.email.data = current_user.email
-            form.mobile.data = current_user.mobile
-        image_file = url_for(
-            'static', filename='img/' + current_user.profile_pic)
-        return render_template("edit_profile.html", user=current_user, form=form, image_file=image_file)
+        dob = datetime.strptime(request.form.get('dob'), '%Y-%m-%d')
+        gender = request.form.get('gender')
+        current_user.first_name = form.username.data
+        current_user.email = form.email.data
+        current_user.gender = gender
+        current_user.dob = dob
+        db.session.commit()
+    elif request.method == 'GET':
+        form.username.data = current_user.first_name
+        form.email.data = current_user.email
+        form.mobile.data = current_user.mobile
+    image_file = url_for(
+        'static', filename='img/' + current_user.profile_pic)
+    return render_template("edit_profile.html", user=current_user, form=form, image_file=image_file)
 
 
 @views.route('/change_password', methods=['POST', 'GET'])
@@ -470,7 +536,7 @@ def forget_password():
     pass
 
 
-@views.route('/course/<course_name>/add_material')
+@views.route('/course/<course_name>/add_material', methods=['GET', 'POST'])
 @login_required
 @require_role('p')
 def add_material(course_name):
@@ -490,18 +556,22 @@ def add_material(course_name):
                     basedir = os.path.abspath(os.path.dirname(__file__))
                     file.save(os.path.join(
                         basedir, 'static/uploads', filename))
+                    material = Materials(
+                        teacher_id=teacher.id, course_id=course.id, material=filename)
+                    db.session.add(material)
+                    db.session.commit()
                     flash("File uploaded succesfully", category='success')
                 else:
                     flash('File not allowed', category='error')
-            return render_template("add_material.html", user=current_user)
+            return redirect(url_for('views.course_home', course_name=course_name))
         else:
             flash("No permission", category="error")
-            return redirect('/')
+            return redirect(url_for('views.course_home', course_name=course_name))
     else:
         return f"<h1>404 NOT FOUND</h>"
 
 
-@views.route('/delete-note', methods=['POST'])
+@ views.route('/delete-note', methods=['POST'])
 def delete_note():
     note = json.loads(request.data)
     noteId = note['noteId']
@@ -513,7 +583,7 @@ def delete_note():
     return jsonify({})
 
 
-@views.route('/test', methods=['GET', 'POST'])
+@ views.route('/test', methods=['GET', 'POST'])
 def test():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -531,7 +601,7 @@ def test():
     return render_template('test.html', user=current_user,)
 
 
-@views.route('/download/<filename>')
+@ views.route('/download/<filename>')
 def uploaded_file(filename):
     basedir = os.path.abspath(os.path.dirname(__file__))
     return send_from_directory(os.path.join(basedir, 'static/uploads'), filename, as_attachment=True)

@@ -1,5 +1,5 @@
 {% extends "teacher_base.html" %}
-{% block title %}Home{% endblock %}
+{% block title %}Attendance{% endblock %}
 {% block content %}
 <h1 align="center">Attendance</h1>
 <div class="container">
@@ -7,7 +7,7 @@
     <div class="card-body">
       <h3 class="card-title">{{ course_name }}</h3>
       <br />
-      <div class="table-responsive">
+      <div class="table-responsive-xxl">
         <form method="POST">
           <h3 class="card-title">Lecture Date</h3>
           <input type="date" class="form-control" placeholder="Date..." name="date" value={{date}} id="date" required>
