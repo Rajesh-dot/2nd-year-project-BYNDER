@@ -1,34 +1,76 @@
-{% extends "base.html" %}
-{% block title %}Sign Up{% endblock %}
-{% block content %}
-</br>
-</br>
-</br>
-<div class="container">
-  <div class="card card-plain">
-    <div class="card-body">
-      <h2 class="card-title" align="center">Materials</h2>
-      <div class="table-responsive">
-          </br>
-          <table class="table table-hover text-nowrap">
-          <tbody>
-            <tr>
-              <td>
-                <i class="fas fa-file-pdf fa-2x"></i>
-              </td>
-              <td>AVL insertion and Deletion</td>
-              <td>5mb</td>
-              <td>
-                <button type="button" class="btn btn-dark btn-sm px-3">
-                  <i class="fas fa-download"></i>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-{% endblock %}
+//index.html
+<!DOCTYPE html>
+<html>
+<head> 
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Python Flask Add Remove Input Fields Dynamically with JQuery Ajax and Mysqldb</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />  
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>  
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>    
+</head>
+<body>
+ <script>
+$(document).ready(function() {
+  
+var MaxInputs       = 8; //maximum input boxes allowed
+var InputsWrapper   = $("#InputsWrapper"); //Input boxes wrapper ID
+var AddButton       = $("#AddMoreFileBox"); //Add button ID
+  
+var x = InputsWrapper.length; //initlal text box count
+var FieldCount=1; //to keep track of text box added
+  
+$(AddButton).click(function (e)  //on add input button click
+{
+        if(x <= MaxInputs) //max input box allowed
+        {
+            FieldCount++; //text box added increment
+            //add input box
+            $(InputsWrapper).append('<div class="row"><p class="col-xs-6"><input type="text" placeholder="Enter your skill" class="form-control skill_list" name="skill[]" id="field_'+ FieldCount +'" value="Enter your skill '+ FieldCount +'"/></p><a href="#" class="btn btn-danger removeclass">×</a></div>');
+            x++; //text box increment
+        }
+return false;
+});
+  
+$("body").on("click",".removeclass", function(e){ //user click on remove text
+        if( x > 1 ) {
+                $(this).parent('div').remove(); //remove text box
+                x--; //decrement textbox
+        }
+return false;
+})
+ $('#submit').click(function(){            
+           $.ajax({  
+                url:"/test",  
+                method:"POST",  
+                data:$('#add_skills').serialize(),  
+                success:function(data)  
+                {  alert(data)
+                     $('#resultbox').html(data);  
+                     $('#add_skills')[0].reset();  
+                }  
+           });  
+      }); 
+});
+</script>
+<style>
+.row {padding:10px;}
+</style>
+<div class="container">  
+                <br />  
+                <br />  
+                <h2 align="center">Python Flask Add Remove Input Fields Dynamically with JQuery Ajax and Mysqldb</h2><div id="resultbox"></div>  
+                <div class="form-group">  
+                     <form name="add_skills" id="add_skills">  
+                                    <div id="InputsWrapper">
+          <div class="row">
+                                         <div class="col-xs-6"><input type="text" name="skill[]" placeholder="Enter your skill" class="form-control name_list" /></div>
+                                         <div class="col-xs-6"><button type="button" name="add" id="AddMoreFileBox" class="btn btn-success">Add More</button></div>
+           </div>
+         </div>
+         <br/>
+                               <input type="button" name="submit" id="submit" class="btn btn-info" value="Submit" />  
+                     </form>  
+                </div>  
+           </div>  
+</body>

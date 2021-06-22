@@ -5,13 +5,15 @@
 </br>
 </br>
 <div class="card">
-    <div class="card-body"><h2 align="center">{{course.course_name}}<h2></div>
-    <div class="card-body">
-        <i style="display: inline-block;" aria-hidden="true" class="fas fa-graduation-cap" align="center"></i>
-        <h3 style="display: inline-block;" align="center">
-            {{name}}
-        </h3>
-    </div>
+  <div class="card-body">
+    <h2 align="center">{{course.course_name}}<h2>
+  </div>
+  <div class="card-body">
+    <i style="display: inline-block;" aria-hidden="true" class="fas fa-graduation-cap" align="center"></i>
+    <h3 style="display: inline-block;" align="center">
+      {{name}}
+    </h3>
+  </div>
 </div>
 </br>
 </br>
@@ -19,25 +21,25 @@
   <div class="card-body">
     <h2 class="card-title" align="center">Materials</h2>
     <div class="table-responsive">
-        </br>
-        <table class="table table-hover text-nowrap">
+      </br>
+      <table class="table table-hover text-nowrap">
         <tbody>
           {% for i in materials%}
-              <tr>
-              <td>
-                  <i class="fas fa-file-pdf fa-2x"></i>
-              </td>
-              <td>{{i.material}}</td>
-              <td>{{times[i]}}</td>
-              <td>{{sizes[i]}} bytes</td>
-              <td>
-                <a href="/download/{{i.material}}">
-                  <button type="button" class="btn btn-dark btn-sm px-3">
-                    <i class="fas fa-download"></i>
-                  </button>
-                </a>
-              </td>
-              </tr>
+          <tr>
+            <td>
+              <i class="fas fa-file-pdf fa-2x"></i>
+            </td>
+            <td>{{i.material}}</td>
+            <td>{{times[i]}}</td>
+            <td>{{sizes[i]}} bytes</td>
+            <td>
+              <a href="/download/{{i.material}}">
+                <button type="button" class="btn btn-dark btn-sm px-3">
+                  <i class="fas fa-download"></i>
+                </button>
+              </a>
+            </td>
+          </tr>
           {% endfor %}
         </tbody>
       </table>
@@ -54,7 +56,8 @@
 </button>
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -64,9 +67,10 @@
         </button>
       </div>
       <div class="modal-body">
-        <form method="POST" enctype="multipart/form-data" action="{{url_for('views.add_material', course_name=course.course_name)}}">
+        <form method="POST" enctype="multipart/form-data"
+          action="{{url_for('courses.add_material', course_name=course.course_name)}}">
           <p><input type="file" name="file">
-              <input type="submit" value="Upload">
+            <input type="submit" value="Upload">
         </form>
       </div>
       <!--
@@ -99,4 +103,3 @@
 <a class="nav-item nav-link" id="attendance" href="/courses">Courses</a>
 {% endif %}
 {% endblock %}
-

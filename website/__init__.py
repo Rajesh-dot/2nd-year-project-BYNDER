@@ -4,6 +4,7 @@ from os import path
 from flask_login import LoginManager
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.sql import func
+from .config import Config
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -11,17 +12,22 @@ DB_NAME = "database.db"
 
 def create_app():
     app = Flask(__name__)
-    app.config['SECRET_KEY'] = 'rajesh aka the king'
-    app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
-    app.config['UPLOAD_PATH'] = 'static'
+    app.config.from_object(Config)
+
     db.init_app(app)
 
-    from .views import views
-    from .auth import auth
-    from .admin import admin
+    from website.courses.routes import courses
+    from website.admin.routes import admin
+    from website.groups.routes import groups
+    from website.main.routes import views
+    from website.notices.routes import notices
+    from website.users.routes import users
 
     app.register_blueprint(views, url_prefix='/')
-    app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(notices, url_prefix='/')
+    app.register_blueprint(groups, url_prefix='/')
+    app.register_blueprint(courses, url_prefix='/')
+    app.register_blueprint(users, url_prefix='/')
     app.register_blueprint(admin, url_prefix='/')
 
     from .models import User, Note
@@ -29,7 +35,7 @@ def create_app():
     create_database(app)
 
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'users.login'
     login_manager.init_app(app)
 
     @login_manager.user_loader

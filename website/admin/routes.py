@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from sqlalchemy.sql.functions import user
-from .models import Note, User, Student, Course, Teacher, Student_ids, Attendance, Array_ids, Group, Group_student_id
-from . import db
-from .views import require_role
+from ..models import Note, User, Student, Course, Teacher, Student_ids, Attendance, Array_ids, Group, Group_student_id
+from website import db
+from website.main.utils import require_role
 from .forms import AddStudent, AddTeacher, AddCourse
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime, date
