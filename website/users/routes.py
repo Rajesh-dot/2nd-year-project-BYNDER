@@ -4,7 +4,7 @@ from ..models import User
 from werkzeug.security import generate_password_hash, check_password_hash
 from website import db
 from flask_login import login_required, login_user, logout_user, current_user
-from .forms import LoginForm, Change_password, UpdateAccountForm
+from .forms import LoginForm, Change_password, UpdateAccountForm, Profile_pic_Form
 from website.main.utils import require_role
 from datetime import datetime
 from website.courses.utils import get_attendance
@@ -46,21 +46,6 @@ def logout():
     return redirect(url_for('users.login'))
 
 
-@users.route('/change_password', methods=['POST', 'GET'])
-@login_required
-def change_password():
-    form = Change_password()
-    if form.validate_on_submit():
-        if check_password_hash(current_user.password, form.password.data):
-            current_user.password = generate_password_hash(
-                form.new_password.data, method='sha256')
-            db.session.commit()
-            flash("Password Changed Sucessfully", category="success")
-        else:
-            flash("Incorrect password, try again.", category="error")
-    return render_template("change_password.html", user=current_user, form=form)
-
-
 @users.route('/forget_password', methods=['POST', 'GET'])
 def forget_password():
     pass
@@ -88,31 +73,6 @@ def profile():
         return render_template('admin.html', user=current_user, image_file=image_file)
 
 
-@users.route('/profile/edit', methods=['POST', 'GET'])
-@login_required
-def edit_profile():
-    form = UpdateAccountForm()
-    if form.validate_on_submit():
-        if form.picture.data:
-            picture_file = save_picture(form.picture.data)
-            current_user.profile_pic = picture_file
-
-        dob = datetime.strptime(request.form.get('dob'), '%Y-%m-%d')
-        gender = request.form.get('gender')
-        current_user.first_name = form.username.data
-        current_user.email = form.email.data
-        current_user.gender = gender
-        current_user.dob = dob
-        db.session.commit()
-    elif request.method == 'GET':
-        form.username.data = current_user.first_name
-        form.email.data = current_user.email
-        form.mobile.data = current_user.mobile
-    image_file = url_for(
-        'static', filename='img/' + current_user.profile_pic)
-    return render_template("edit_profile.html", user=current_user, form=form, image_file=image_file)
-
-
 @users.route('/attendance')
 @login_required
 @require_role('s')
@@ -121,3 +81,56 @@ def attendance():
     values = attendance_percentages.values()
     total = sum(values)//len(values)
     return render_template("progress.html", user=current_user, attendance_percentages=attendance_percentages, total=total)
+
+
+@users.route('/settings/upload_profile_image', methods=['GET', 'POST'])
+@login_required
+def upload_profile_pic():
+    form = Profile_pic_Form()
+    if form.validate_on_submit():
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+            current_user.profile_pic = picture_file
+            db.session.commit()
+            flash("Image uploaded sucessfully", category='success')
+    else:
+        flash("Please upload an image", category='error')
+    return redirect(url_for('users.settings'))
+
+
+@users.route('/settings', methods=['GET', 'POST'])
+@login_required
+def settings():
+    form = UpdateAccountForm()
+    form2 = Change_password()
+    form3 = Profile_pic_Form()
+    if form.validate_on_submit():
+
+        dob = datetime.strptime(request.form.get('dob'), '%Y-%m-%d')
+        gender = request.form.get('gender')
+        current_user.first_name = form.username.data
+        current_user.gender = gender
+        current_user.mobile = form.mobile.data
+        current_user.dob = dob
+        db.session.commit()
+    elif request.method == 'GET':
+        form.username.data = current_user.first_name
+        form.mobile.data = current_user.mobile
+    image_file = url_for(
+        'static', filename='img/' + current_user.profile_pic)
+    return render_template("settings.html", user=current_user, form=form, image_file=image_file, form2=form2, form3=form3)
+
+
+@users.route('/settings/change_password', methods=['GET', 'POST'])
+@login_required
+def change_password():
+    form = Change_password()
+    if form.validate_on_submit():
+        if check_password_hash(current_user.password, form.current_password.data):
+            current_user.password = generate_password_hash(
+                form.new_password.data, method='sha256')
+            db.session.commit()
+            flash("Password Changed Sucessfully", category="success")
+        else:
+            flash("Incorrect password, try again.", category="error")
+    return redirect(url_for('users.settings'))

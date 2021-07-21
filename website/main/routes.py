@@ -44,10 +44,8 @@ def home():
             user_notes.append(note)
     user_notes.reverse()
 
-    if current_user.user_type.lower() == 's':
+    if current_user.user_type.lower() == 's' or current_user.user_type.lower() == 'p':
         return render_template("home.html", user=current_user, notes=user_notes)
-    elif current_user.user_type.lower() == 'p':
-        return render_template("teacher_home.html", user=current_user, notes=user_notes)
     elif current_user.user_type.lower() == 'a':
         return render_template('admin.html', user=current_user)
     else:

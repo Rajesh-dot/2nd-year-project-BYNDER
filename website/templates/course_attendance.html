@@ -2,10 +2,30 @@
 {% block title %}Attendance{% endblock %}
 {% block content %}
 </br>
+<div class="card text-center">
+    <div class="card-header">
+        <ul class="nav nav-pills nav-justified card-header-tabs">
+            <li class="nav-item">
+                <a class="nav-link" aria-current="true" href="/courses/{{course.course_name}}">DashBoard</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="/course/{{course.course_name}}/attendance">Attendance</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="" tabindex="-1" aria-disabled="true">Quizes</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#!" tabindex="-1" aria-disabled="true">Progress</a>
+            </li>
+        </ul>
+    </div>
+</div>
 </br>
 </br>
 <div class="card">
-    <div class="card-body"><h2 align="center">{{course.course_name}}<h2></div>
+    <div class="card-body">
+        <h2 align="center">{{course.course_name}}<h2>
+    </div>
     <div class="card-body">
         <i style="display: inline-block;" aria-hidden="true" class="fas fa-graduation-cap" align="center"></i>
         <h3 style="display: inline-block;" align="center">
@@ -19,7 +39,8 @@
     <div class="card-body">
         <h4>{{course.course_name}}, {{attendance_percentages}}%</h4>
         <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: {{attendance_percentages}}%" aria-valuenow="{{attendance_percentages}}" aria-valuemin="0" aria-valuemax="100"></div>
+            <div class="progress-bar" role="progressbar" style="width: {{attendance_percentages}}%"
+                aria-valuenow="{{attendance_percentages}}" aria-valuemin="0" aria-valuemax="100"></div>
         </div>
     </div>
 </div>
@@ -39,4 +60,3 @@
 <a class="nav-item nav-link" id="attendance" href="/courses">Courses</a>
 {% endif %}
 {% endblock %}
-

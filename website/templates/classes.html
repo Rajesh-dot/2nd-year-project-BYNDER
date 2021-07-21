@@ -2,6 +2,24 @@
 {% block title %}Courses{% endblock %}
 {% block content %}
 </br>
+<div class="card text-center">
+  <div class="card-header">
+    <ul class="nav nav-pills nav-justified card-header-tabs">
+      <li class="nav-item">
+        <a class="nav-link active" aria-current="true" href="/courses/{{course.course_name}}/">DashBoard</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/course/{{course.course_name}}/attendance">Attendance</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="" tabindex="-1" aria-disabled="true">Quizes</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#!" tabindex="-1" aria-disabled="true">Progress</a>
+      </li>
+    </ul>
+  </div>
+</div>
 </br>
 </br>
 <div class="card">

@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, send_from_directory
+from flask import Blueprint, render_template, request, flash, redirect, url_for, send_from_directory, current_app
 from flask_login import login_required, current_user
 from ..models import Materials, User, Student, Course, Teacher, Attendance
 from website import db
@@ -14,8 +14,7 @@ courses = Blueprint('courses', __name__)
 
 @ courses.route('/download/<filename>')
 def uploaded_file(filename):
-    basedir = os.path.abspath(os.path.dirname(__file__))
-    return send_from_directory(os.path.join(basedir, 'static/uploads'), filename, as_attachment=True)
+    return send_from_directory(current_app.config["FILE_UPLOADS"], filename, as_attachment=True)
 
 
 @courses.route('/course/<course_name>/add_material', methods=['GET', 'POST'])
@@ -35,9 +34,8 @@ def add_material(course_name):
                     flash('No file selected', category='error')
                 elif file and allowed_file(file.filename):
                     filename = secure_filename(file.filename)
-                    basedir = os.path.abspath(os.path.dirname(__file__))
                     file.save(os.path.join(
-                        basedir, 'static/uploads', filename))
+                        current_app.config["FILE_UPLOADS"], filename))
                     material = Materials(
                         teacher_id=teacher.id, course_id=course.id, material=filename)
                     db.session.add(material)
@@ -45,10 +43,10 @@ def add_material(course_name):
                     flash("File uploaded succesfully", category='success')
                 else:
                     flash('File not allowed', category='error')
-            return redirect(url_for('views.course_home', course_name=course_name))
+            return redirect(url_for('courses.course_home', course_name=course_name))
         else:
             flash("No permission", category="error")
-            return redirect(url_for('views.course_home', course_name=course_name))
+            return redirect(url_for('courses.course_home', course_name=course_name))
     else:
         return f"<h1>404 NOT FOUND</h>"
 
@@ -67,7 +65,7 @@ def course_attendance(course_name):
         f"<h1>404 NOT FOUND</h1>"
 
 
-@courses.route('/courses/<course_name>', methods=['GET', 'POST'])
+@courses.route('/courses/<course_name>/', methods=['GET', 'POST'])
 @login_required
 def course_home(course_name):
     if validate_course(course_name):
@@ -76,10 +74,9 @@ def course_home(course_name):
         name = teacher.user_name
         materials = course.materials
         materials_sizes = {}
-        basedir = os.path.abspath(os.path.dirname(__file__))
         times = {}
         for i in materials:
-            path = os.path.join(basedir, 'static/uploads', i.material)
+            path = os.path.join(current_app.config["FILE_UPLOADS"], i.material)
             materials_sizes[i] = os.path.getsize(path)
             times[i] = time.ctime(os.path.getctime(path))
         materials.reverse()
@@ -126,7 +123,7 @@ def get_courses():
     return render_template('courses.html', user=current_user, course_names=course_names)
 
 
-@courses.route('/course/<course>/take_attendance', methods=['GET', 'POST'])
+@courses.route('/course/<course>/take_attendance/', methods=['GET', 'POST'])
 @login_required
 @require_role('p')
 def subject(course):
