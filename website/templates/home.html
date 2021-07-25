@@ -1,11 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<h1 align="center">Notices</h1>
+<h1 align="center" style="color: green;">Notices</h1>
 </br>
+{% if notes|length<1 %} 
+   <div style="text-align: center;">
+      <br><br><br>
+      <img src="{{url_for('static',filename='no notice.jpg')}}" alt="no notice" width="150 px">
+      <h6>There are no notices to show</h6>
+    </div>
+{% else %}   
+{% endif %}
 {% for note in notes %}
     <div class="card shadow-3-strong mb-3">
-        <div class="card-header">
+        <div class="card-header" style="background-color: lightgreen;">
             <i style="display: inline-block;" aria-hidden="true" class="fas fa-graduation-cap"></i>
             <h3 style="display: inline-block;">
                 {{note.user_name}}
@@ -15,9 +23,9 @@
             </p>
         </div>
         <div class="card-body">
-            <h5 class="card-title">{{ note.title }}</h5>
-            <p class="card-text" style="white-space: pre-line;">
-                {{note.data}}
+            <h5 class="card-title" style="color: lightgreen;font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;">{{ note.title }}</h5>
+            <p class="card-text" style="white-space: pre-line;font-size:large;">
+                <em>{{note.data}}</em>
             </p>
         </div>
     </div>

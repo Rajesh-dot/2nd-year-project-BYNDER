@@ -1,11 +1,20 @@
 {% extends "base.html" %}
 {% block title %}Courses{% endblock %}
 {% block content %}
-<h1 align="center">Courses</h1>
+<h1 align="center" style="color: green;">Courses</h1>
 </br>
+{% if course_names|length<1 %} 
+   <div style="text-align: center;">
+      <br><br>
+      <img src="{{url_for('static',filename='no course.jpg')}}" alt="no course" width="130 px">
+      <br><br>
+      <h6>You are not added to any course yet</h6>
+    </div>
+{% else %}   
+{% endif %}
 {% for course in course_names %}
     <a href='/courses/{{course}}'>
-        <button class="btn btn-success btn-lg btn-block">
+        <button class="btn btn-success btn-lg btn-block" style="font-size: 20px;">
             {{ course_names[course] }}
         </button>
     </a>
