@@ -1,38 +1,57 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
 {% block content %}
+<style>
+    body{
+       background-color: palegreen;
+    }
+</style>
 <form method="POST">
     {{ form.csrf_token }}
-    <h2 align="center">Login</h2>
-    <div class="form-group">
-        {{ form.email.label(class="form-control-label") }}
-        {% if form.email.errors %}
-            {{ form.email(class="form-control form-control is-invalid") }}
-            <div class="invalid-feedback">
-                {% for error in form.email.errors %}
-                    <span>{{ error }}</span>
-                {% endfor %}
-            </div>
-        {% else %}
-            {{ form.email(class="form-control", placeholder="Enter Email") }}
-        {% endif %}
-    </div>
-    <div class="form-group">
-        {{ form.password.label(class="form-control-label") }}
-        {% if form.password.errors %}
-            {{ form.password(class="form-control form-control is-invalid") }}
-            <div class="invalid-feedback">
-                {% for error in form.password.errors %}
-                    <span>{{ error }}</span>
-                {% endfor %}
-            </div>
-        {% else %}
-            {{ form.password(class="form-control form-control", placeholder="Enter Password") }}
-        {% endif %}
-    </div>
-    <div class="form-group">
-        {{ form.submit(class="btn btn-primary") }}
-    </div>
+    <!--<h2 align="center" style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Login</h2>-->
+    <section class="container-fluid" style="padding-top:50px;">
+       <section class="row justify-content-center">
+           <section class="col-12 col-sm-6" style="background-color:white;padding:10 px;border-radius:10px;">
+               <form class="form-container">
+                   <div class="form-group" style="padding-top: 30px;">
+                    <h1 align="center" style="color:green;font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">Login</h1>
+                    <br>
+                     {{ form.email.label(class="form-control-label") }}
+                      {% if form.email.errors %}
+                         {{ form.email(class="form-control form-control is-invalid") }}
+                         <div class="invalid-feedback">
+                            {% for error in form.email.errors %}
+                               <span>{{ error }}</span>
+                            {% endfor %}
+                        </div>
+                      {% else %}
+                        {{ form.email(class="form-control", placeholder="Enter Email") }}
+                      {% endif %}
+                    </div>
+    
+                    <div class="form-group" style="padding-top:10px">
+                       {{ form.password.label(class="form-control-label") }}
+                       {% if form.password.errors %}
+                          {{ form.password(class="form-control form-control is-invalid") }}
+                          <div class="invalid-feedback">
+                             {% for error in form.password.errors %}
+                                <span>{{ error }}</span>
+                             {% endfor %}
+                          </div>
+                       {% else %}
+                          {{ form.password(class="form-control form-control", placeholder="Enter Password") }}
+                       {% endif %}
+                    </div>
+                    <div class="form-group" style="padding-top: 20px;">
+                      {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                    <div class="form-footer" style="text-align: right;padding-bottom:10px;">
+                        <a href="#">Forgot password?</a>
+                    </div>
+                </form>
+            </section>
+        </section>
+    </section>                
     <!--
     <div class="form-group">
         <label for="email">Email Address</label>
