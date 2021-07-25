@@ -1,11 +1,19 @@
 {% extends "base.html" %}
 {% block title %}Groups{% endblock %}
 {% block content %}
-<h1 align="center">Groups</h1>
+<h1 align="center" style="color: green;">Groups</h1>
 </br>
+{% if groups|length<1 %} 
+   <div style="text-align: center;">
+      <br><br><br>
+      <img src="{{url_for('static',filename='no group.jpg')}}" alt="no group" width="200 px">
+      <h6>You are not added to any group yet</h6>
+    </div>
+{% else %}   
+{% endif %}
 {% for group in groups %}
     <div class="card border border-dark mb-3">
-        <div class="card-header">
+        <div class="card-header" style="color: lightgreen;">
             <h3 style="display: inline-block;">
                 {{group.group_name}}
             </h3>
