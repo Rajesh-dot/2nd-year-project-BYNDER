@@ -1,10 +1,10 @@
-from flask import Blueprint, render_template, request, flash, jsonify
+from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
 from ..models import Note, Student, Teacher, Array_ids
 from website import db
 from website.main.utils import require_role
 import json
-from .forms import NoticeForm
+from .forms import NoticeForm, EditPostForm
 
 notices = Blueprint('notices', __name__)
 
@@ -121,3 +121,47 @@ def addpost():
         else:
             flash("Retry some error occured", category="success")
     return render_template("addnotice.html", user=current_user, form=form)
+
+
+@notices.route('/my_notices', methods=['GET', 'POST'])
+@login_required
+@require_role(role="p")
+def my_notices():
+    notes = current_user.notes
+    return render_template('my_notices.html',user=current_user,notes=notes)
+
+
+@notices.route('/notice/<id>', methods=['GET', 'POST'])
+@login_required
+@require_role(role="p")
+def notice_view(id):
+    note = Note.query.get(id)
+    if note and note.author.id:
+        form = EditPostForm()
+        if request.method == 'GET':
+            form.title.data = note.title
+            form.content.data = note.data
+        if form.validate_on_submit():
+            note.title = form.title.data
+            note.data = form.content.data
+            db.session.commit()
+            flash('Posted edited sucessfully', category='success')
+            return redirect(url_for('notices.my_notices'))
+        return render_template("edit_notice.html",user=current_user,note=note,form=form)
+    else:
+        return f"<h1>404 page not found</h1>"
+
+
+@notices.route('/notice/<id>/delete', methods=['GET', 'POST'])
+@login_required
+@require_role(role="p")
+def delete_post(id):
+    note = Note.query.get(id)
+    if note and note.author.id:
+        db.session.delete(note)
+        db.session.commit()
+        flash('Post deleted successfully', category='success')
+        return redirect('/')
+    else:
+        return f"<h1>404</h1>"
+

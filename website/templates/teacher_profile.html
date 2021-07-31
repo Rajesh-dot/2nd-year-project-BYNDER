@@ -1,4 +1,4 @@
-{% extends "teacher_base.html" %}
+{% extends "base.html" %}
 {% block title %}Profile{% endblock %}
 {% block content %}
 <h1 align="center">Profile</h1>
@@ -16,8 +16,7 @@
                       <h4>{{ user.first_name }}</h4>
                       <p class="text mb-1">{{ user.email }}</p>
                       <p class="text-muted font-size-sm">Vasireddy Venkatadri Institute of Technology</p>
-                      <a class="btn btn-primary" href="/profile/edit" role="button">Edit Profile</a>
-                      <a class="btn btn-primary" href="/change_password" role="button">Change Password</a>
+                      <a class="btn btn-primary" href="/settings" role="button">Settings</a>
                       <!--<button class="btn btn-outline-primary">Change Password</button>-->
                     </div>
                   </div>
@@ -47,10 +46,10 @@
                   <hr>
                   <div class="row">
                     <div class="col-sm-3">
-                      <h6 class="mb-0">Father Name</h6>
+                      <h6 class="mb-0">Date of Birth</h6>
                     </div>
                     <div class="col-sm-9 text">
-                      ABC
+                      {{dob}}
                     </div>
                   </div>
                   <hr>
@@ -65,10 +64,10 @@
                   <hr>
                   <div class="row">
                     <div class="col-sm-3">
-                      <h6 class="mb-0">Address</h6>
+                      <h6 class="mb-0">Gender</h6>
                     </div>
                     <div class="col-sm-9 text">
-                      Guntur
+                      {{user.gender}}
                     </div>
                   </div>
                 </div>

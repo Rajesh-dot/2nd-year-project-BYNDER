@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+</br>
+</br>
+<!-- Tabs navs -->
+<ul class="nav nav-tabs nav-justified mb-3" id="ex1" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a
+        class="nav-link active"
+        id="ex3-tab-1"
+        data-mdb-toggle="tab"
+        href="#ex3-tabs-1"
+        role="tab"
+        aria-controls="ex3-tabs-1"
+        aria-selected="true"
+        >Presentees</a
+      >
+    </li>
+    <li class="nav-item" role="presentation">
+      <a
+        class="nav-link"
+        id="ex3-tab-2"
+        data-mdb-toggle="tab"
+        href="#ex3-tabs-2"
+        role="tab"
+        aria-controls="ex3-tabs-2"
+        aria-selected="false"
+        >Absentees</a
+      >
+    </li>
+  </ul>
+  <!-- Tabs navs -->
+  
+  <!-- Tabs content -->
+  <div class="tab-content" id="ex2-content">
+    <div
+      class="tab-pane fade show active"
+      id="ex3-tabs-1"
+      role="tabpanel"
+      aria-labelledby="ex3-tab-1"
+    >
+    </br>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Roll. No</th>
+              <th scope="col">Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for index,data in present_data%}
+            <tr>
+              <th scope="row">{{index}}</th>
+              <td>{{data['roll_no']}}</td>
+              <td>{{data['name']}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+    </table>
+    </div>
+    <div
+      class="tab-pane fade"
+      id="ex3-tabs-2"
+      role="tabpanel"
+      aria-labelledby="ex3-tab-2"
+    >
+    </br>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Roll. No</th>
+              <th scope="col">Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for index,data in absent_data%}
+            <tr>
+              <th scope="row">{{index}}</th>
+              <td>{{data['roll_no']}}</td>
+              <td>{{data['name']}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+    </table>
+    </div>
+  </div>
+  <!-- Tabs content -->
+</br>
+</br>
+{% endblock %}
+{% block navbar %}
+{% if user.is_authenticated %}
+<a class="nav-item nav-link" id="home" href="/">Home</a>
+<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+<a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
+<a class="nav-item nav-link" id="courses" href="/courses">Courses</a>
+<a class="nav-item nav-link" id="attendance" href="/attendance">Attendance</a>
+<a class="nav-item nav-link" id="groups" href="/groups">Groups</a>
+{% else %}
+<a class="nav-item nav-link" id="login" href="/login">Login</a>
+<a class="nav-item nav-link" id="sign-up" href="/sign-up">Sign Up</a>
+{% endif %}
+{% endblock %}

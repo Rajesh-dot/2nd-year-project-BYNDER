@@ -52,7 +52,9 @@
                     <a class="nav-link" aria-current="page" href="/">Home</a>
                     <a class="nav-item nav-link" id="courses" href="/addpost">Add Notice</a>
                     <a class="nav-item nav-link" id="attendance" href="/classes">Classes</a>
-                    <a class="nav-item nav-link" id="groups" href="/groups">Create Group</a>
+                    <a class="nav-item nav-link" id="groups" href="/create_group">Create Group</a>
+                    <a class="nav-item nav-link" id="groups" href="/my_notices">My Notices</a>
+                    <a class="nav-item nav-link" id="groups" href="/my_groups">My Groups</a>
                     {% if user.user_type=='a' %}
                     <a class="nav-link" href="{{url_for('admin.all_users')}}">Users</a>
                     <a class="nav-link" href="#">Posts</a>

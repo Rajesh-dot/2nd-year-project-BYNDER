@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Courses{% endblock %}
 {% block content %}
-<h1 align="center" style="color: green;">Courses</h1>
+<h1 align="center">Courses</h1>
 </br>
 {% if course_names|length<1 %} 
    <div style="text-align: center;">
@@ -14,7 +14,7 @@
 {% endif %}
 {% for course in course_names %}
     <a href='/courses/{{course}}'>
-        <button class="btn btn-success btn-lg btn-block" style="font-size: 20px;">
+        <button class="btn btn-success btn-lg btn-block">
             {{ course_names[course] }}
         </button>
     </a>

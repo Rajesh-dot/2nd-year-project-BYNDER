@@ -66,9 +66,11 @@ def profile():
     if current_user.user_type == 's':
         attendance_percentages = get_attendance()
         colors = ['primary', 'danger', 'success', 'warning', 'info']
-        return render_template('student_profile.html', user=current_user, image_file=image_file, attendance_percentages=attendance_percentages, colors=colors)
+        dob = current_user.dob.strftime("%m/%d/%Y, %H:%M:%S").split()[0]
+        return render_template('student_profile.html', user=current_user, image_file=image_file, attendance_percentages=attendance_percentages, colors=colors,dob=dob)
     elif current_user.user_type == 'p':
-        return render_template('teacher_profile.html', user=current_user, image_file=image_file)
+        dob = current_user.dob.strftime("%m/%d/%Y, %H:%M:%S").split()[0]
+        return render_template('teacher_profile.html', user=current_user, image_file=image_file,dob=dob)
     elif current_user.user_type == 'a':
         return render_template('admin.html', user=current_user, image_file=image_file)
 
@@ -79,7 +81,10 @@ def profile():
 def attendance():
     attendance_percentages = get_attendance()
     values = attendance_percentages.values()
-    total = sum(values)//len(values)
+    if len(values)==0:
+        total=0
+    else:
+        total = sum(values)//len(values)
     return render_template("progress.html", user=current_user, attendance_percentages=attendance_percentages, total=total)
 
 
@@ -110,12 +115,12 @@ def settings():
         gender = request.form.get('gender')
         current_user.first_name = form.username.data
         current_user.gender = gender
-        current_user.mobile = form.mobile.data
+        current_user.mobile = int(form.mobile.data)
         current_user.dob = dob
         db.session.commit()
     elif request.method == 'GET':
         form.username.data = current_user.first_name
-        form.mobile.data = current_user.mobile
+        form.mobile.data = int(current_user.mobile)
     image_file = url_for(
         'static', filename='img/' + current_user.profile_pic)
     return render_template("settings.html", user=current_user, form=form, image_file=image_file, form2=form2, form3=form3)

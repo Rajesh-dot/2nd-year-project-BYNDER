@@ -2,27 +2,6 @@
 {% block title %}Attendance{% endblock %}
 {% block content %}
 </br>
-<div class="card text-center">
-  <div class="card-header">
-    <ul class="nav nav-pills nav-justified card-header-tabs">
-      <li class="nav-item">
-        <a class="nav-link" aria-current="true" href="/courses/{{course.course_name}}/">DashBoard</a>
-      </li>
-      {% if user.user_type == 's' %}
-      <li class="nav-item">
-        <a class="nav-link active" href="/course/{{course.course_name}}/attendance">Attendance</a>
-      </li>
-      {% else %}
-      <li class="nav-item">
-        <a class="nav-link active" href="/course/{{course.course_name}}/take_attendance">Take Attendance</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/course/{{course.course_name}}/lectures">Lectures</a>
-      </li>
-      {% endif %}
-    </ul>
-  </div>
-</div>
 </br>
 </br>
 <div class="container">
@@ -43,21 +22,28 @@
             </tr>
           </thead>
           <tbody>
-            {% for student in students_list %}
+            {% for student in students_info %}
               <tr>
                 <td class="td-number text-center">
-                  {{ student.regno }}
+                  {{ student['regno'] }}
                 </td>
                 <td class="td-number text-center">
-                  {{ student.user_name }}
+                  {{ student['name'] }}
                 </td>
                 <td class="td-number text-center">
                   <div class="form-check disabled">
                     <label class="form-check-label">
-                    <input value="true" class="form-check-input" type="checkbox" name={{ student.id }}>
+                    {% if student['present_status'] %}
+                    <input value="true" class="form-check-input" type="checkbox" name="{{ student['regno'] }}" checked>
                       <span class="form-check-sign">
                         <span class="check"></span>
                       </span>
+                    {% else %}
+                    <input value="true" class="form-check-input" type="checkbox" name="{{ student['regno'] }}">
+                      <span class="form-check-sign">
+                        <span class="check"></span>
+                      </span>
+                    {% endif %}
                     </label>
                   </div>
                 </td>

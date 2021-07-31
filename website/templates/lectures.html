@@ -2,7 +2,27 @@
 {% block title %}Home{% endblock %}
 {% block content %}
 </br>
-<h1 align="center">2 CSE B ADS</h1>
+<div class="card text-center">
+    <div class="card-header">
+      <ul class="nav nav-pills nav-justified card-header-tabs">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="true" href="/courses/{{course.course_name}}/">DashBoard</a>
+        </li>
+        {% if user.user_type == 's' %}
+        <li class="nav-item">
+          <a class="nav-link" href="/course/{{course.course_name}}/attendance">Attendance</a>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="/course/{{course.course_name}}/take_attendance">Take Attendance</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link active" href="/course/{{course.course_name}}/lectures">Lectures</a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
 </br>
 {% for lecture_info in lectures_info %}
 <div class="card shadow-3-strong mb-3">
@@ -14,9 +34,12 @@
       Absent: {{lecture_info['absent']}} /
     </p>
     <p class="card-text" style="display: inline-block;">
-      present: {{lecture_info['present']}}
+      present: {{lecture_info['present']}} -
     </p>
-    <a href="#" class="btn btn-primary" style="float: right;">Edit</a>
+    <a class="card-text" style="display: inline-block;" href="/course/{{course.course_name}}/{{lecture_info['lecture'].id}}/info">
+      Info
+    </a>
+    <a href="/course/{{course.course_name}}/{{lecture_info['lecture'].id}}/edit" class="btn btn-primary" style="float: right;">Edit</a>
   </div>
 </div>
 </br>

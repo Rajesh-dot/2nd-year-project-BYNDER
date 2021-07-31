@@ -72,7 +72,8 @@ class Course(db.Model):
     course_name = db.Column(db.String(100))
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
     student_ids = db.relationship('Student_ids')
-    attendance = db.relationship('Attendance')
+    #attendance = db.relationship('Attendance')
+    lecture = db.relationship('Lecture')
     materials = db.relationship('Materials')
 
 
@@ -82,11 +83,22 @@ class Student_ids(db.Model):
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
 
 
+class Lecture(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    #absentees_count = db.Column(db.Integer)
+    #presentees_count = db.Column(db.Integer)
+    #course_name = db.Column(db.String(100))
+    attendance = db.relationship('Attendance')
+
+
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(timezone=True), default=func.now())
     present_status = db.Column(db.Boolean, nullable=False)
-    course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
+    #course_id = db.Column(db.Integer)
+    lecture_id = db.Column(db.Integer, db.ForeignKey('lecture.id'))
     student_id = db.Column(db.Integer, db.ForeignKey('student.id'))
 
 
@@ -96,6 +108,7 @@ class Group(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey(
         'teacher.id'), nullable=False)
     student_ids = db.relationship('Group_student_id')
+    notices = db.relationship('Group_Notices')
 
 
 class Group_student_id(db.Model):
@@ -109,6 +122,16 @@ class Materials(db.Model):
     teacher_id = db.Column(db.Integer, db.ForeignKey('teacher.id'))
     course_id = db.Column(db.Integer, db.ForeignKey('course.id'))
     material = db.Column(db.String(150), nullable=False)
+
+
+class Group_Notices(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(150))
+    data = db.Column(db.Text, nullable=False)
+    date = db.Column(db.DateTime(timezone=True), default=func.now())
+    author = db.Column(db.String(50),nullable=False)
+    group_id = db.Column(db.Integer, db.ForeignKey('group.id'))
+
 
 
 '''

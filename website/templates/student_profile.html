@@ -1,15 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-<h1 align="center" style="color: green;font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif">Profile</h1>
-<br>
+<h1 align="center">Profile</h1>
 {% set stu = user.student[0] %}
 {% set c=0 %}
 <div class="container">
   <div class="main-body">
     <div class="row gutters-sm">
       <div class="col-md-4 mb-3">
-        <div class="card" style="background-color: lightgreen;">
+        <div class="card ">
           <div class="card-body">
             <div class="d-flex flex-column align-items-center text-center">
               <img src="{{image_file}}" alt="profile-pic" class="rounded-circle" width="150">
@@ -25,7 +24,7 @@
             </div>
           </div>
         </div>
-        <!--<div class="card mt-3">
+        <div class="card mt-3">
           <ul class="list-group list-group-flush">
             {% for course in attendance_percentages %}
             <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap">
@@ -34,14 +33,14 @@
             </li>
             {% endfor %}
           </ul>
-        </div>-->
+        </div>
       </div>
       <div class="col-md-8">
-        <div class="card mb-3" style="border:lightgreen 3px solid;">
+        <div class="card mb-3">
           <div class="card-body">
             <div class="row">
               <div class="col-sm-3">
-                <h6 class="mb-0" style="color: green;">Full Name</h6>
+                <h6 class="mb-0">Full Name</h6>
               </div>
               <div class="col-sm-9 text">
                 {{ user.first_name }}
@@ -50,7 +49,7 @@
             <hr>
             <div class="row">
               <div class="col-sm-3">
-                <h6 class="mb-0" style="color: green;">Email</h6>
+                <h6 class="mb-0">Email</h6>
               </div>
               <div class="col-sm-9 text">
                 {{ user.email }}
@@ -59,16 +58,16 @@
             <hr>
             <div class="row">
               <div class="col-sm-3">
-                <h6 class="mb-0" style="color: green;">Father Name</h6>
+                <h6 class="mb-0">Date of Birth</h6>
               </div>
               <div class="col-sm-9 text">
-                ABC
+                {{dob}}
               </div>
             </div>
             <hr>
             <div class="row">
               <div class="col-sm-3">
-                <h6 class="mb-0" style="color: green;">Mobile</h6>
+                <h6 class="mb-0">Mobile</h6>
               </div>
               <div class="col-sm-9 text">
                 {{user.mobile}}
@@ -77,15 +76,15 @@
             <hr>
             <div class="row">
               <div class="col-sm-3">
-                <h6 class="mb-0" style="color: green;">Address</h6>
+                <h6 class="mb-0">Gender</h6>
               </div>
               <div class="col-sm-9 text">
-                Guntur
+                {{user.gender}}
               </div>
             </div>
           </div>
         </div>
-        <!--<div class="row">
+        <div class="row">
           <div class="col-sm-12">
             <div class="card">
               <div class="card-body">
@@ -99,11 +98,10 @@
                 </div>
                 {% set c = (c+1)%5 %}
                 {%endfor%}
-                
               </div>
             </div>
           </div>
-        </div>-->
+        </div>
       </div>
     </div>
   </div>

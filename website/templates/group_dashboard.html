@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1 align="center">Notices</h1>
+</br>
+<a type="button" class="btn btn-primary" href="/groups/{{group.id}}/add_notice" align="center">
+    Add Notice
+</a>
+</br>
+</br>
+{% if notes|length<1 %} 
+   <div style="text-align: center;">
+      <br><br><br>
+      <img src="{{url_for('static',filename='no notice.jpg')}}" alt="no notice" width="150 px">
+      <h6>There are no notices to show</h6>
+    </div>
+{% else %}   
+{% endif %}
+{% for note in notes %}
+<div class="card shadow-3-strong mb-3">
+    <div class="card-header">
+        <h3 style="display: inline-block;">
+            {{note.author}}
+        </h3>
+        <p style="display: inline-block; float: right;">
+            {{note.date}}
+        </p>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">{{ note.title }}</h5>
+        <p class="card-text" style="white-space: pre-line;">
+            {{note.data}}
+        </p>
+    </div>
+</div>
+</br>
+{% endfor %}
+</br>
+{% endblock %}
+{% block navbar %}
+{% if user.is_authenticated %}
+<a class="nav-item nav-link" id="home" href="/">Home</a>
+<a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+<a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
+<a class="nav-item nav-link" id="courses" href="/courses">Courses</a>
+<a class="nav-item nav-link" id="attendance" href="/attendance">Attendance</a>
+<a class="nav-item nav-link" id="groups" href="/groups">Groups</a>
+{% else %}
+<a class="nav-item nav-link" id="login" href="/login">Login</a>
+<a class="nav-item nav-link" id="sign-up" href="/sign-up">Sign Up</a>
+{% endif %}
+{% endblock %}

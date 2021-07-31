@@ -1,13 +1,14 @@
+import PIL
 from flask import Blueprint, render_template, request, flash, redirect, url_for, send_from_directory, current_app
 from flask_login import login_required, current_user
-from ..models import Materials, User, Student, Course, Teacher, Attendance
+from ..models import Lecture, Materials, User, Student, Course, Teacher, Attendance, Note, Array_ids
 from website import db
 from website.main.utils import require_role
 from datetime import date
 import os
 from werkzeug.utils import secure_filename
 import time
-from .utils import validate_course, get_attendance, allowed_file
+from .utils import validate_course, get_attendance, allowed_file, get_attend_info
 
 courses = Blueprint('courses', __name__)
 
@@ -147,15 +148,98 @@ def subject(course):
             students_list.append(student)
     if request.method == 'POST':
         # date = request.form.get("date")
+        lecture = Lecture(course_id=course.id)
+        db.session.add(lecture)
+        db.session.commit()
         for student in students_list:
             present_status = request.form.get(str(student.id))
             if present_status != None:
                 attendance = Attendance(
-                    present_status=True, course_id=course.id, student_id=student.id)
+                    present_status=True, lecture_id=lecture.id, student_id=student.id)
             else:
                 attendance = Attendance(
-                    present_status=False, course_id=course.id, student_id=student.id)
+                    present_status=False, lecture_id=lecture.id, student_id=student.id)
+                notice = Note(data="You are marked as absent for "+course_name, user_id=1,
+                          user_name="Admin", title="Absent", notice_type='a')
+                db.session.add(notice)
+                db.session.commit()
+                array_ids = Array_ids(
+                        note_id=notice.id, user_id=student.user_id)
+                db.session.add(array_ids)
+                db.session.commit()
             db.session.add(attendance)
             db.session.commit()
 
-    return render_template("attendance.html", user=current_user, students_list=students_list, course_name=course_name, date=date.today())
+    return render_template("attendance.html", user=current_user, students_list=students_list, course=course, date=date.today())
+
+
+@courses.route('/course/<course>/lectures/', methods=['GET', 'POST'])
+@login_required
+@require_role('p')
+def lectures_info(course):
+    course_name = course
+    course = Course.query.filter_by(course_name=course_name).first()
+    if course:
+        lectures_info = []
+        lectures = course.lecture
+        for lecture in lectures:
+            info = get_attend_info(lecture)
+            present,absent=len(info['presentees']),len(info['absentees'])
+            lectures_info.append({"lecture":lecture,"date":lecture.date.strftime("%m/%d/%Y, %H:%M:%S"),"present":present,"absent":absent})
+        return render_template('lectures.html',user=current_user,lectures_info=lectures_info,course=course)
+    else:
+        return f"<h1>404 NOT FOUND</h>"
+
+@courses.route('/course/<course>/<id>/info', methods=['GET', 'POST'])
+@login_required
+@require_role('p')
+def lecture_present_info(course, id):
+    course_name = course
+    course = Course.query.filter_by(course_name=course_name).first()
+    lecture = Lecture.query.get(id)
+    if course!=None and lecture!=None: #and lecture.subject==course.course_name
+        info = get_attend_info(lecture)
+        present_ids,absent_ids=info['presentees'],info['absentees']
+        present_data=[]
+        absent_data=[]
+        for index,idx in enumerate(present_ids):
+            student=Student.query.get(idx)
+            present_data.append((index+1,{'roll_no':student.regno,'name':student.user_name}))
+        for index,idx in enumerate(absent_ids):
+            student=Student.query.get(idx)
+            absent_data.append((index+1,{'roll_no':student.regno,'name':student.user_name}))
+        return render_template('lecture_info.html',user=current_user,present_data=present_data,absent_data=absent_data)
+    else:
+        return f"<h1>404 NOT FOUND</h>"
+
+@courses.route('/course/<course>/<id>/edit', methods=['GET', 'POST'])
+@login_required
+@require_role('p')
+def edit_lecture(course, id):
+    course_name = course
+    course = Course.query.filter_by(course_name=course_name).first()
+    lecture = Lecture.query.get(id)
+    if course!=None and lecture!=None:
+        students_info=[]
+        attendance=lecture.attendance
+        student_attend_map={}
+        for attend in attendance:
+            student = Student.query.get(attend.student_id)
+            student_attend_map[student.regno] = attend
+            students_info.append({'regno':student.regno,'name':student.user_name,'present_status':attend.present_status,'attend_id':attend.id})
+        if request.method=='POST':
+            for student_regno in student_attend_map:
+                present_status = request.form.get(str(student_regno))
+                if present_status != None:
+                    attend = student_attend_map[student_regno]
+                    attend.present_status = True
+                else:
+                    attend = student_attend_map[student_regno]
+                    attend.present_status = False
+                db.session.commit()
+            flash("Updated Sucessfull",category='success')
+            return redirect(url_for('courses.lectures_info',course=course_name))
+
+        return render_template('edit_lecture.html',user=current_user,students_info=students_info,course=course, date=lecture.date)
+    else:
+        return f"<h1>404 NOT FOUND</h>"

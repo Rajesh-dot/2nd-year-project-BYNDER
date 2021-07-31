@@ -30,7 +30,7 @@ def create_app():
     app.register_blueprint(users, url_prefix='/')
     app.register_blueprint(admin, url_prefix='/')
 
-    from .models import User, Note
+    from .models import User, Note, Student, Teacher, Course, Attendance, Group, Group_student_id, Materials, Student_ids
 
     create_database(app)
 
@@ -41,6 +41,16 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
         return User.query.get(int(id))
+
+    #from flask_admin import Admin
+    #from flask_admin.contrib.sqla import ModelView
+
+    #admin = Admin(app, name='Dashboard')
+    #admin.add_view(ModelView(User, db.session))
+    #admin.add_view(ModelView(Note, db.session))
+    #admin.add_view(ModelView(Student, db.session))
+    #admin.add_view(ModelView(Teacher, db.session))
+    #admin.add_view(ModelView(Course, db.session))
 
     return app
 

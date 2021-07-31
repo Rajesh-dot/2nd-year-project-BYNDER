@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileAllowed
 from flask_login import current_user
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField, DecimalField, TextAreaField
-from wtforms.fields.core import SelectField
+from wtforms.fields.core import IntegerField, SelectField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from ..models import User
 
@@ -17,7 +17,7 @@ class LoginForm(FlaskForm):
 class UpdateAccountForm(FlaskForm):
     username = StringField('Username',
                            validators=[DataRequired(), Length(min=2, max=30)])
-    mobile = DecimalField('Mobile', validators=[DataRequired()])
+    mobile = IntegerField('Mobile', validators=[DataRequired()])
     submit = SubmitField('Update')
 
 

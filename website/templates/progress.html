@@ -1,40 +1,21 @@
 {% extends "base.html" %}
 {% block title %}Attendance{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-<h1 align="center" style="color: green;">Progress</h1>
-<h2 style="color: indianred;font-family:Georgia, 'Times New Roman', Times, serif;">{{ user.first_name }}</h2>
-<br>
-<div class="container">
-  <div class="card mb-3" style="border: lightgreen 3px solid;">
-      <div class="card-header" style="background-color:lightcyan;">
-        <h4 style="font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;">Aggregate ,{{total}}%</h4>
-        <div class="progress" style="height: 20px;">
-          <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{total}}%" aria-valuenow="{{total}}" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-      </div>  
-      <div class="card-body">
-        <div class=card-text>
-        <br>
-        {% for course in attendance_percentages %}
-        <h4 style="font-family:Arial, Helvetica, sans-serif;">{{course.course_name}} ,{{attendance_percentages[course]}}%</h4>
-        <div class="progress" style="height: 20px;">
-            <div class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: {{attendance_percentages[course]}}%" aria-valuenow="{{attendance_percentages[course]}}" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <br>
-        {% endfor %}
-        </div>
-      </div>
-  </div>
-</div>  
-<!--{% for course_name in attendance_percentages %}
-    <h4 style="font-size: 200%;font-family:Georgia, 'Times New Roman', Times, serif">{{course_name}}</h4>
+<h1 align="center">Progress</h1>
+<h2 >{{ user.first_name }}</h2>
+</br>
+<h4>Aggregate, {{total}}%</h4>
+<div class="progress">
+    <div class="progress-bar bg-success" role="progressbar" style="width: {{total}}%" aria-valuenow="{{total}}" aria-valuemin="0" aria-valuemax="100"></div>
+</div>
+</br>
+{% for course in attendance_percentages %}
+    <h4>{{course.course_name}}, {{attendance_percentages[course]}}%</h4>
     <div class="progress">
-        <div class="progress-bar bg-success progress-bar-striped active" role="progressbar" style="width: {{attendance_percentages[course_name]}}%" aria-valuenow="{{attendance_percentages[course_name]}}" aria-valuemin="0" aria-valuemax="100"></div>
-        <p style="font-size: 250%;padding-left:5px;">  {{attendance_percentages[course_name]}}%</p>
+        <div class="progress-bar bg-success" role="progressbar" style="width: {{attendance_percentages[course]}}%" aria-valuenow="{{attendance_percentages[course]}}" aria-valuemin="0" aria-valuemax="100"></div>
     </div>
-<br>
-{% endfor %}-->
+</br>
+{% endfor %}
 {% endblock %}
 {% block navbar %}
 {% if user.is_authenticated %}
